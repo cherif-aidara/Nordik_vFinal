@@ -1,0 +1,362 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestion des stocks - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}" class="active"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; Facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'pgi:login' %}" class="logout-btn">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+    <!-- HEADER -->
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-warehouse"></i>
+        </div>
+        <div>
+          <h2>Gestion des stocks &amp; produits</h2>
+          <p>Vue d’ensemble des quantités, réapprovisionnements et fournisseurs de Nordik Adventures</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <div class="searchbar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchStock" placeholder="Rechercher un SKU, un produit, un fournisseur...">
+        </div>
+        <a href="{% url 'stocks:product_create' %}" class="add-btn">
+          <i class="fa-solid fa-box-open"></i> Nouveau produit
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI PRINCIPAUX STOCKS -->
+    <section class="kpi">
+      <div class="card">
+        <i class="fa-solid fa-cubes"></i>
+        <div class="card-content">
+          <p>Produits actifs</p>
+          <h3>{{ products|length }}</h3>
+          <span class="trend neutral">SKU suivis dans l’inventaire</span>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-sack-dollar"></i>
+        <div class="card-content">
+          <p>Valeur totale du stock</p>
+          <h3>{{ total_value|floatformat:2 }} $</h3>
+          <span class="trend positive">Basée sur le coût d’achat</span>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div class="card-content">
+          <p>Produits à réapprovisionner</p>
+          <h3>{{ low_stock_count }}</h3>
+          <span class="trend negative">Quantité ≤ seuil de réapprovisionnement</span>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-truck"></i>
+        <div class="card-content">
+          <p>Fournisseurs</p>
+          <h3>{{ suppliers_count }}</h3>
+          <span class="trend neutral">Sources d’approvisionnement</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTRES D’INVENTAIRE (visuels + préparés pour JS) -->
+    <section class="filters-section">
+      <h2><i class="fa-solid fa-filter"></i> Filtres d’inventaire (maquette)</h2>
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label for="filtreCategorie">Catégorie</label>
+          <select id="filtreCategorie" class="filter-select">
+            <option value="">Toutes</option>
+            {% for cat in categories %}
+              <option value="{{ cat.category__name }}">{{ cat.category__name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filtreStatut">Statut de stock</label>
+          <select id="filtreStatut" class="filter-select">
+            <option value="">Tous</option>
+            <option value="ok">OK</option>
+            <option value="bas">Stock bas</option>
+            <option value="rupture">Rupture</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filtreFournisseur">Fournisseur</label>
+          <select id="filtreFournisseur" class="filter-select">
+            <option value="">Tous</option>
+            {% for s in suppliers %}
+              <option value="{{ s.name }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="reset-filters" type="button" onclick="resetFilters()">
+          <i class="fa-solid fa-rotate"></i> Réinitialiser
+        </button>
+      </div>
+    </section>
+
+    <!-- INVENTAIRE DÉTAILLÉ -->
+    <section class="modern-table">
+      <h2><i class="fa-solid fa-boxes-stacked"></i> Inventaire détaillé</h2>
+      <div class="table-container" id="tableInventaire">
+        <div class="table-header">
+          <span>SKU</span>
+          <span>Produit</span>
+          <span>Catégorie</span>
+          <span>Fournisseur</span>
+          <span>Qté / Seuil</span>
+          <span>Valeur stock ($)</span>
+          <span>Statut</span>
+        </div>
+        {% for p in products %}
+          <div class="table-row"
+               data-sku="{{ p.sku }}"
+               data-name="{{ p.name|lower }}"
+               data-categorie="{{ p.category.name }}"
+               data-fournisseur="{{ p.supplier.name }}"
+               data-quantite="{{ p.quantity_in_stock }}"
+               data-seuil="{{ p.reorder_threshold }}">
+            <span>{{ p.sku }}</span>
+            <span>{{ p.name }}</span>
+            <span>{{ p.category.name }}</span>
+            <span>{{ p.supplier.name }}</span>
+            <span>{{ p.quantity_in_stock }} / {{ p.reorder_threshold }}</span>
+            <span>{{ p.total_stock_value|floatformat:2 }}</span>
+            <span>
+              {% if p.quantity_in_stock <= 0 %}
+                <span class="status critical">RUPTURE</span>
+              {% elif p.quantity_in_stock <= p.reorder_threshold %}
+                <span class="status warning">STOCK BAS</span>
+              {% else %}
+                <span class="status ok">OK</span>
+              {% endif %}
+            </span>
+          </div>
+        {% empty %}
+          <div class="table-row">
+            <span>Aucun produit</span>
+            <span colspan="6">Ajoutez des produits via l’interface d’administration Django pour alimenter le module.</span>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- GRAPHIQUES STOCKS -->
+    <section class="charts">
+      <div class="chart-card">
+        <h2><i class="fa-solid fa-chart-line"></i> Top produits par quantité en stock</h2>
+        <canvas id="chartStock"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2><i class="fa-solid fa-chart-pie"></i> Valeur de stock par catégorie</h2>
+        <canvas id="chartCategories"></canvas>
+      </div>
+    </section>
+
+    <!-- ALERTES & MOUVEMENTS (MAQUETTE) -->
+    <section class="modern-timeline">
+      <h2><i class="fa-solid fa-bell"></i> Alertes &amp; mouvements récents</h2>
+      <div class="timeline-container">
+        {% if low_stock_products %}
+          {% for p in low_stock_products %}
+            <div class="timeline-item warning">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div class="card-content">
+                <h3>Alerte stock bas — {{ p.sku }} ({{ p.name }})</h3>
+                <p>Stock : {{ p.quantity_in_stock }} / seuil {{ p.reorder_threshold }} — Fournisseur : {{ p.supplier.name }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="timeline-item ok">
+            <i class="fa-solid fa-circle-check"></i>
+            <div class="card-content">
+              <h3>Aucune alerte de stock</h3>
+              <p>Tous les produits sont au-dessus de leur seuil de réapprovisionnement.</p>
+            </div>
+          </div>
+        {% endif %}
+        <div class="timeline-item info">
+          <i class="fa-solid fa-circle-info"></i>
+          <div class="card-content">
+            <h3>Résumé inventaire actuel</h3>
+            <p>{{ products|length }} produits actifs en base pour une valeur totale de {{ total_value|floatformat:2 }} $ (coût d’achat).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      © 2025 Nordik Adventures — Module Gestion des Stocks (maquette PGI)
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const rows = Array.from(document.querySelectorAll("#tableInventaire .table-row"))
+      .filter(r => r.dataset && r.dataset.sku);
+
+    function appliquerFiltresVisuels() {
+      const q = document.getElementById("searchStock").value.toLowerCase();
+      const cat = document.getElementById("filtreCategorie").value;
+      const statut = document.getElementById("filtreStatut").value;
+      const fournisseur = document.getElementById("filtreFournisseur").value;
+
+      rows.forEach(row => {
+        const nom = row.dataset.name || "";
+        const categorie = row.dataset.categorie || "";
+        const four = row.dataset.fournisseur || "";
+        const badge = row.querySelector(".status");
+        let st = "";
+        if (badge) {
+          if (badge.classList.contains("critical")) st = "rupture";
+          else if (badge.classList.contains("warning")) st = "bas";
+          else if (badge.classList.contains("ok")) st = "ok";
+        }
+
+        const matchSearch =
+          !q ||
+          nom.includes(q) ||
+          (row.dataset.sku || "").toLowerCase().includes(q) ||
+          four.toLowerCase().includes(q);
+        const matchCat = !cat || categorie === cat;
+        const matchStatut =
+          !statut ||
+          (statut === "ok" && st === "ok") ||
+          (statut === "bas" && st === "bas") ||
+          (statut === "rupture" && st === "rupture");
+        const matchFour = !fournisseur || four === fournisseur;
+
+        row.style.display =
+          matchSearch && matchCat && matchStatut && matchFour ? "grid" : "none";
+      });
+    }
+
+    function resetFilters() {
+      document.getElementById("searchStock").value = "";
+      document.getElementById("filtreCategorie").value = "";
+      document.getElementById("filtreStatut").value = "";
+      document.getElementById("filtreFournisseur").value = "";
+      appliquerFiltresVisuels();
+    }
+
+    function getProduitsPourGraph() {
+      return rows.map(row => {
+        const valeurCell = row.children[5].textContent || "0";
+        const valeur = parseFloat(valeurCell.replace(",", ".").split(" ")[0]) || 0;
+        return {
+          sku: row.dataset.sku || "",
+          categorie: row.dataset.categorie || "Autres",
+          quantite: parseInt(row.dataset.quantite || "0"),
+          valeur
+        };
+      });
+    }
+
+    function initChartsStocks() {
+      const produits = getProduitsPourGraph();
+      if (!produits.length) return;
+
+      const ctxStock = document.getElementById("chartStock");
+      const ctxCat = document.getElementById("chartCategories");
+      if (!ctxStock || !ctxCat || typeof Chart === "undefined") return;
+
+      // Top 10 produits par quantité en stock (100 % basé sur la BDD produits)
+      const topProduits = [...produits]
+        .sort((a, b) => b.quantite - a.quantite)
+        .slice(0, 10);
+      const labelsTop = topProduits.map(p => p.sku || p.categorie);
+      const valuesTop = topProduits.map(p => p.quantite);
+
+      new Chart(ctxStock, {
+        type: "bar",
+        data: {
+          labels: labelsTop,
+          datasets: [{
+            label: "Quantité en stock",
+            data: valuesTop,
+            backgroundColor: "rgba(0,102,204,0.85)",
+            borderRadius: 6
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // Valeur du stock par catégorie (toujours basée sur les produits de la BDD)
+      const categories = {};
+      produits.forEach(p => {
+        categories[p.categorie] = (categories[p.categorie] || 0) + p.valeur;
+      });
+      const labelsCat = Object.keys(categories);
+      const dataCat = Object.values(categories);
+
+      new Chart(ctxCat, {
+        type: "doughnut",
+        data: {
+          labels: labelsCat.length ? labelsCat : ["Aucune donnée"],
+          datasets: [{
+            data: dataCat.length ? dataCat : [1],
+            backgroundColor: ["#0066cc","#4cc9f0","#00b4d8","#90e0ef","#caf0f8"],
+            borderWidth: 3
+          }]
+        },
+        options: {
+          cutout: "65%",
+          plugins: { legend: { position: "bottom" } }
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      ["searchStock","filtreCategorie","filtreStatut","filtreFournisseur"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        // Sur les champs texte, 'input' fonctionne; sur les listes déroulantes, on ajoute aussi 'change'
+        el.addEventListener("input", appliquerFiltresVisuels);
+        el.addEventListener("change", appliquerFiltresVisuels);
+      });
+      appliquerFiltresVisuels();
+      initChartsStocks();
+    });
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trésorerie &amp; flux - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}" class="active"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-money-bill-transfer"></i>
+        </div>
+        <div>
+          <h2>Trésorerie &amp; flux de caisse</h2>
+          <p>Chronologie des encaissements et décaissements pour analyser le cash-flow.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'pgi:finances' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Retour au cockpit
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-timeline">
+      <div class="timeline-container" id="journalTresorerie"></div>
+    </section>
+  </main>
+
+  <script>
+    // Ces collections seront alimentées depuis les vraies factures / achats.
+    let factures = [];
+    let achats = [];
+    function majTresorerie() {
+      const journal = document.getElementById("journalTresorerie");
+      journal.innerHTML = "";
+      const evenements = [
+        ...factures.map(f => ({
+          type: "ok",
+          icone: "fa-arrow-trend-up",
+          titre: `Encaissement prévu F-${f.id}`,
+          texte: `${f.client} — +${(f.sousTotal * 1.14975).toFixed(2)} $ le ${f.date}`
+        })),
+        ...achats.map(a => ({
+          type: "warning",
+          icone: "fa-arrow-trend-down",
+          titre: `Décaissement A-${a.id}`,
+          texte: `${a.fournisseur} (${a.type}) — -${a.montant.toFixed(2)} $ le ${a.date}`
+        }))
+      ];
+      if (evenements.length === 0) {
+        const div = document.createElement("div");
+        div.className = "timeline-item ok";
+        div.innerHTML = `
+          <i class="fa-solid fa-circle-check"></i>
+          <div class="card-content">
+            <h3>Aucun mouvement financier enregistré</h3>
+            <p>La trésorerie sera alimentée lorsque les ventes et achats seront en base.</p>
+          </div>`;
+        journal.appendChild(div);
+      } else {
+        evenements.forEach(e => {
+          const div = document.createElement("div");
+          div.className = "timeline-item " + e.type;
+          div.innerHTML = `
+            <i class="fa-solid ${e.icone}"></i>
+            <div class="card-content">
+              <h3>${e.titre}</h3>
+              <p>${e.texte}</p>
+            </div>`;
+          journal.appendChild(div);
+        });
+      }
+    }
+    document.addEventListener("DOMContentLoaded", majTresorerie);
+  </script>
+</body>
+</html>
+
+

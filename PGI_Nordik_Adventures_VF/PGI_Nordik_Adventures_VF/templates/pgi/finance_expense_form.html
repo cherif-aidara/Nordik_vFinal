@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nouvel achat - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'stocks:stock_list' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'finances:finances' %}" class="active"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'clients:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-cart-flatbed"></i>
+        </div>
+        <div>
+          <h2>Nouvel achat / dépense</h2>
+          <p>Enregistrer une dépense dans le module Finances Nordik.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'finances:finances_achats' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Retour aux achats
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-table form-card">
+      <h2><i class="fa-solid fa-pen-to-square"></i> Détails de la dépense</h2>
+      <form method="post" class="form-grid">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-truck"></i> {{ form.supplier_name.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <i class="fa-solid fa-truck"></i>
+            {{ form.supplier_name }}
+          </div>
+          {% if form.supplier_name.errors %}<div class="field-errors">{{ form.supplier_name.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-tags"></i> {{ form.expense_type.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.expense_type }}
+          </div>
+          {% if form.expense_type.errors %}<div class="field-errors">{{ form.expense_type.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-sack-dollar"></i> {{ form.amount.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <span class="pgi-prefix">$</span>
+            {{ form.amount }}
+          </div>
+          {% if form.amount.errors %}<div class="field-errors">{{ form.amount.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-calendar-day"></i> {{ form.expense_date.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.expense_date }}
+          </div>
+          {% if form.expense_date.errors %}<div class="field-errors">{{ form.expense_date.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-calendar-check"></i> {{ form.due_date.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.due_date }}
+          </div>
+          {% if form.due_date.errors %}<div class="field-errors">{{ form.due_date.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-toggle-on"></i> {{ form.status.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.status }}
+          </div>
+          {% if form.status.errors %}<div class="field-errors">{{ form.status.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-barcode"></i> {{ form.reference.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.reference }}
+          </div>
+          {% if form.reference.errors %}<div class="field-errors">{{ form.reference.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group" style="grid-column: 1 / -1;">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-align-left"></i> {{ form.notes.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper pgi-textarea-wrapper">
+            {{ form.notes }}
+          </div>
+          {% if form.notes.errors %}<div class="field-errors">{{ form.notes.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="add-btn">
+            <i class="fa-solid fa-floppy-disk"></i> Enregistrer la dépense
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+

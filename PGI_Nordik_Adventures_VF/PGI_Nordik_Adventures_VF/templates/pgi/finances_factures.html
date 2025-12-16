@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Factures clients - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}" class="active"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+        </div>
+        <div>
+          <h2>Factures clients</h2>
+          <p>Vue détaillée des ventes, montants, taxes et statuts de paiement.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'finances:finances' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Retour au tableau financier
+        </a>
+        <a href="{% url 'finances:invoice_create' %}" class="add-btn">
+          <i class="fa-solid fa-file-circle-plus"></i> Nouvelle facture
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-table compact">
+      <div class="table-container" id="blocFactures">
+        <div class="table-header">
+          <span>#</span>
+          <span>Client</span>
+          <span>Sous-total</span>
+          <span>TPS / TVQ</span>
+          <span>Total TTC</span>
+          <span>Date</span>
+          <span>Statut</span>
+          <span>Actions</span>
+        </div>
+
+        {% if invoices %}
+          {% for inv in invoices %}
+            <div class="table-row">
+              <span>F-{{ inv.id }}</span>
+              <span>{{ inv.client_name }}</span>
+              <span>{{ inv.amount }} $</span>
+              <span>{{ inv.tps }} $ / {{ inv.tvq }} $</span>
+              <span>{{ inv.total_amount }} $</span>
+              <span>{{ inv.invoice_date|date:"d/m/Y" }}</span>
+              <span>
+                <span class="status 
+                  {% if inv.status == inv.STATUS_PAID %}ok
+                  {% elif inv.status == inv.STATUS_PENDING %}warning
+                  {% else %}critical
+                  {% endif %}">
+                  {{ inv.get_status_display }}
+                </span>
+              </span>
+              <span class="table-actions">
+                <a href="{% url 'finances:invoice_detail' inv.id %}" title="Voir le détail"><i class="fa-solid fa-eye"></i></a>
+                <a href="{% url 'finances:invoice_pdf' inv.id %}" title="Télécharger en PDF"><i class="fa-solid fa-file-arrow-down"></i></a>
+                <a href="{% url 'finances:invoice_update' inv.id %}" title="Modifier"><i class="fa-solid fa-pen-to-square"></i></a>
+                <a href="{% url 'finances:invoice_delete' inv.id %}" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
+              </span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="table-row">
+            <span colspan="8">Aucune facture enregistrée pour l’instant. Elles seront lues depuis la BDD.</span>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Les factures sont directement rendues côté serveur depuis la BDD.
+  </script>
+</body>
+</html>
+
+

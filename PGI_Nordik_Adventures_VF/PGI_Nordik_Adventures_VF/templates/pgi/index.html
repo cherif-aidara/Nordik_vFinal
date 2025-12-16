@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}" class="active"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; Facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url 'pgi:login' %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+    <!-- HEADER -->
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-gauge-high"></i>
+        </div>
+        <div>
+          <h2>Tableau de bord général</h2>
+          <p>Vue intégrée des modules Stocks, Finances et Clients de Nordik Adventures</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <div class="searchbar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchGlobal" placeholder="Rechercher une commande, un client, un SKU...">
+        </div>
+        <button class="add-btn" onclick="changerPeriode()">
+          <i class="fa-solid fa-calendar"></i> Période : <span id="periodeLabel">12 derniers mois</span>
+        </button>
+        <div class="settings-user-pill">
+          <i class="fa-solid fa-user-circle"></i>
+          <span>{{ request.user.get_full_name|default:request.user.username|default:"Tassadit Hammadi" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs PRINCIPAUX -->
+    <section class="kpi">
+      <div class="card">
+        <i class="fa-solid fa-sack-dollar"></i>
+        <div class="card-content">
+          <p>Chiffre d’affaires</p>
+          <h3 id="kpi-ca">{{ potential_revenue|default:0|floatformat:2 }} $</h3>
+          <span class="trend neutral">Basé sur l’inventaire vendu à prix catalogue</span>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-chart-line"></i>
+        <div class="card-content">
+          <p>Profit net estimé</p>
+          <h3 id="kpi-profit">{{ potential_profit|default:0|floatformat:2 }} $</h3>
+          <span class="trend neutral">Marge potentielle (ventes − coût de stock)</span>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <div class="card-content">
+          <p>Produits actifs en stock</p>
+          <h3 id="kpi-produits">{{ total_products|default:"0" }}</h3>
+          <span class="trend negative">Stocks bas : <span id="kpi-stocks-bas">{{ low_stock_count|default:"0" }}</span></span>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-users"></i>
+        <div class="card-content">
+          <p>Clients actifs</p>
+          <h3 id="kpi-clients">{{ clients_count|default:"0" }}</h3>
+          <span class="trend neutral">En attente de la base de données clients</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section class="charts">
+      <div class="chart-card">
+        <h2><i class="fa-solid fa-chart-line"></i> Valeur d’inventaire &amp; marge potentielle par mois</h2>
+        <canvas id="chartVentes"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2><i class="fa-solid fa-layer-group"></i> Valeur de stock par catégorie</h2>
+        <canvas id="chartModules"></canvas>
+      </div>
+    </section>
+
+    <!-- ACTIVITÉS PAR MODULE -->
+    <section class="activities-grid">
+      <h2><i class="fa-solid fa-diagram-project"></i> Vue rapide par module</h2>
+      <div class="activity-cards" id="moduleCards">
+        <!-- Rempli en JS -->
+      </div>
+    </section>
+
+    <!-- TABLEAU SYNTHÈSE -->
+    <section class="modern-table">
+      <h2><i class="fa-solid fa-table-list"></i> Synthèse des indicateurs clés</h2>
+      <div class="table-container" id="tableSynthese">
+        <!-- En-têtes -->
+        <div class="table-header">
+          <span>Module</span>
+          <span>Indicateur principal</span>
+          <span>Valeur</span>
+          <span>Tendance</span>
+          <span>Alertes</span>
+          <span>Dernière mise à jour</span>
+          <span>Responsable</span>
+        </div>
+        <!-- Lignes ajoutées en JS -->
+      </div>
+    </section>
+
+    <!-- TIMELINE DES ÉVÉNEMENTS -->
+    <section class="modern-timeline">
+      <h2><i class="fa-solid fa-clock-rotate-left"></i> Derniers événements PGI</h2>
+      <div class="timeline-container" id="timeline">
+        <!-- Événements ajoutés en JS -->
+      </div>
+    </section>
+
+    <div class="footer">
+      © 2025 Nordik Adventures — Système PGI (maquette intégrée Stocks · Finances · Clients)
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const donneesModules = [
+      {
+        id: "stocks",
+        titre: "Gestion des stocks",
+        icone: "fa-boxes-stacked",
+        description: "Suivi des produits, seuils et réapprovisionnements.",
+        statut: "ok",
+        valeur: "{{ total_stock_value|default:'0' }} $ de stock",
+        trend: "{{ low_stock_count|default:'0' }} produit(s) sous le seuil"
+      },
+      {
+        id: "finances",
+        titre: "Finances & facturation",
+        icone: "fa-file-invoice-dollar",
+        description: "Ventes, achats, taxes et profit net.",
+        statut: "info",
+        valeur: "{{ potential_revenue|default:0|floatformat:2 }} $ de CA potentiel",
+        trend: "Basé uniquement sur l’inventaire actuel"
+      },
+      {
+        id: "clients",
+        titre: "Relations clients",
+        icone: "fa-people-group",
+        description: "Fidélité, interactions et campagnes marketing.",
+        statut: "ok",
+        valeur: "{{ clients_count|default:'0' }} client(s) en base",
+        trend: "Module CRM en attente de vraies données"
+      }
+    ];
+
+    const lignesSynthese = [
+      ["Stocks","Valeur totale de l'inventaire","{{ total_stock_value|default:'0' }} $","N/A","{{ low_stock_count|default:'0' }} produits sous seuil","Aujourd'hui","Responsable entrepôt"],
+      ["Finances","Chiffre d'affaires (potentiel)","{{ potential_revenue|default:0|floatformat:2 }} $","N/A","Aucune facture en retard (pas encore de ventes)","Aujourd'hui","Comptable"],
+      ["Clients","Clients actifs","{{ clients_count|default:'0' }}","N/A","Alerte CRM inactive (pas encore de clients)","Aujourd'hui","Service client"]
+    ];
+
+    const evenements = [
+      {type:"ok",icone:"fa-cart-shopping",titre:"Inventaire chargé",texte:"Les produits Nordik Adventures ont été importés depuis la BDD."},
+      {type:"warning",icone:"fa-triangle-exclamation",titre:"Alertes stock bas",texte:"{{ low_stock_count|default:'0' }} produit(s) sous le seuil de réapprovisionnement."}
+    ];
+
+    function remplirCartesModules() {
+      const container = document.getElementById("moduleCards");
+      container.innerHTML = "";
+      donneesModules.forEach(mod => {
+        const div = document.createElement("div");
+        div.className = "activity " + (mod.statut === "warning" ? "warning" : "info");
+        div.innerHTML = `
+          <i class="fa-solid ${mod.icone}"></i>
+          <div class="card-content">
+            <h3>${mod.titre}</h3>
+            <p>${mod.description}<br><strong>${mod.valeur}</strong> — ${mod.trend}</p>
+          </div>`;
+        div.onclick = () => {
+          if (mod.id === "stocks") window.location.href = "{% url 'pgi:stocks' %}";
+          if (mod.id === "finances") window.location.href = "{% url 'pgi:finances' %}";
+          if (mod.id === "clients") window.location.href = "{% url 'pgi:clients' %}";
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function remplirSynthese() {
+      const container = document.getElementById("tableSynthese");
+      lignesSynthese.forEach(ligne => {
+        const row = document.createElement("div");
+        row.className = "table-row";
+        ligne.forEach((val, idx) => {
+          const span = document.createElement("span");
+          if (idx === 3) {
+            const cls = val.includes("-") ? "negative" : "positive";
+            span.innerHTML = `<span class="trend ${cls.includes('negative') ? 'negative' : 'positive'}">${val}</span>`;
+          } else if (idx === 4) {
+            const type = val.includes("retard") || val.includes("sous") ? "critical" : "ok";
+            span.innerHTML = `<span class="status ${type === 'ok' ? 'ok' : 'critical'}">${val}</span>`;
+          } else {
+            span.textContent = val;
+          }
+          row.appendChild(span);
+        });
+        container.appendChild(row);
+      });
+    }
+
+    function remplirTimeline() {
+      const container = document.getElementById("timeline");
+      container.innerHTML = "";
+      evenements.forEach(ev => {
+        const div = document.createElement("div");
+        div.className = "timeline-item " + ev.type;
+        div.innerHTML = `
+          <i class="fa-solid ${ev.icone}"></i>
+          <div class="card-content">
+            <h3>${ev.titre}</h3>
+            <p>${ev.texte}</p>
+          </div>`;
+        container.appendChild(div);
+      });
+    }
+
+    function initCharts() {
+      const ctxVentes = document.getElementById("chartVentes");
+      const ctxModules = document.getElementById("chartModules");
+      if (!ctxVentes || !ctxModules || typeof Chart === "undefined") return;
+
+      // Données 100 % basées sur la BDD produits
+      const monthLabels = [{% for lbl in chart_month_labels %}"{{ lbl }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+      const monthRevenus = [{% for v in chart_month_revenues %}{{ v|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+      const monthMarge = [{% for v in chart_month_margins %}{{ v|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+      if (monthLabels.length > 0) {
+        new Chart(ctxVentes, {
+          type: "line",
+          data: {
+            labels: monthLabels,
+            datasets: [
+              {
+                label: "Valeur d’inventaire (CA potentiel)",
+                data: monthRevenus,
+                borderColor: "#0066cc",
+                backgroundColor: "rgba(0,102,204,0.15)",
+                fill: true,
+                tension: 0.35
+              },
+              {
+                label: "Marge brute potentielle",
+                data: monthMarge,
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16,185,129,0.10)",
+                fill: true,
+                tension: 0.35
+              }
+            ]
+          },
+          options: {
+            plugins: { legend: { position: "bottom" } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      const catLabels = [{% for lbl in chart_cat_labels %}"{{ lbl }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+      const catValues = [{% for v in chart_cat_values %}{{ v|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+      if (catLabels.length > 0) {
+        new Chart(ctxModules, {
+          type: "doughnut",
+          data: {
+            labels: catLabels,
+            datasets: [{
+              data: catValues,
+              backgroundColor: ["#0066cc","#4cc9f0","#00b4d8","#90e0ef","#caf0f8"],
+              borderWidth: 3
+            }]
+          },
+          options: {
+            cutout: "65%",
+            plugins: { legend: { position: "bottom" } }
+          }
+        });
+      }
+    }
+
+    function changerPeriode() {
+      const label = document.getElementById("periodeLabel");
+      const options = ["12 derniers mois","30 derniers jours","7 derniers jours"];
+      const current = options.indexOf(label.textContent);
+      const next = (current + 1) % options.length;
+      label.textContent = options[next];
+    }
+
+    function exporterRapport() {
+      alert("Simulation d'export : le rapport PDF global du PGI serait généré ici.");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      remplirCartesModules();
+      remplirSynthese();
+      remplirTimeline();
+      initCharts();
+    });
+  </script>
+</body>
+</html>
+

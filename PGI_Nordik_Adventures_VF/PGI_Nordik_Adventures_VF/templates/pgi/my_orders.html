@@ -1,0 +1,270 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes commandes - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    .orders-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .orders-header {
+      margin-bottom: 30px;
+    }
+    .orders-header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .orders-header a {
+      color: #1d4ed8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .orders-header a:hover {
+      text-decoration: underline;
+    }
+    .order-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .order-info h2 {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+      color: #1f2937;
+    }
+    .order-meta {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    .order-status {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    .order-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .order-status.processing {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .order-status.completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .order-status.paid {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .order-status.cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .order-items {
+      margin-bottom: 20px;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    .order-item-info {
+      flex: 1;
+    }
+    .order-item-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #1f2937;
+    }
+    .order-item-details {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    .order-item-price {
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .order-total {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .order-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-action {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+    .btn-view-invoice {
+      background: #1d4ed8;
+      color: white;
+    }
+    .btn-view-invoice:hover {
+      background: #1e40af;
+    }
+    .btn-rate {
+      background: #f59e0b;
+      color: white;
+    }
+    .btn-rate:hover {
+      background: #d97706;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #d1d5db;
+    }
+    .empty-state h2 {
+      margin-bottom: 10px;
+      color: #1f2937;
+    }
+    .empty-state p {
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+    .btn-shop {
+      padding: 12px 24px;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+    .btn-shop:hover {
+      background: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="orders-container">
+    <div class="orders-header">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-arrow-left"></i> Retour au tableau de bord</a>
+      <h1><i class="fa-solid fa-box"></i> Mes commandes</h1>
+    </div>
+
+    {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-info">
+          <h2>Commande #{{ order.order_number }}</h2>
+          <div class="order-meta">
+            <span><i class="fa-solid fa-calendar"></i> {{ order.order_date|date:"d/m/Y" }}</span>
+            <span><i class="fa-solid fa-dollar-sign"></i> {{ order.total_amount|floatformat:2 }} $</span>
+            <span><i class="fa-solid fa-box"></i> {{ order.line_items.count }} article(s)</span>
+          </div>
+        </div>
+        <div class="order-status {{ order.status|lower }}">
+          {{ order.get_status_display }}
+        </div>
+      </div>
+
+      <div class="order-items">
+        {% for item in order.line_items.all %}
+        <div class="order-item">
+          <div class="order-item-info">
+            <div class="order-item-name">{{ item.product.name }}</div>
+            <div class="order-item-details">
+              SKU: {{ item.product.sku }} | Quantité: {{ item.quantity }} | Prix unitaire: {{ item.unit_price|floatformat:2 }} $
+            </div>
+          </div>
+          <div class="order-item-price">
+            {{ item.total_price|floatformat:2 }} $
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="order-footer">
+        <div class="order-total">
+          Total: {{ order.total_amount|floatformat:2 }} $
+        </div>
+        <div class="order-actions">
+          {% if order.invoice %}
+          <a href="{% url 'finances:invoice_detail' order.invoice.id %}" class="btn-action btn-view-invoice">
+            <i class="fa-solid fa-file-invoice"></i> Voir la facture
+          </a>
+          {% endif %}
+          {% if order.status == 'completed' and not order.rating %}
+          <a href="{% url 'clients:rate_order' order.id %}" class="btn-action btn-rate">
+            <i class="fa-solid fa-star"></i> Évaluer
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-box-open"></i>
+      <h2>Aucune commande</h2>
+      <p>Vous n'avez pas encore passé de commande.</p>
+      <a href="{% url 'stocks:catalogue' %}" class="btn-shop">
+        <i class="fa-solid fa-store"></i> Voir le catalogue
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
+

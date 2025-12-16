@@ -1,0 +1,1587 @@
+================================================================================
+EXPLICATION COMPLÈTE DU PROJET PGI NORDIK ADVENTURES
+TP#3 - Développement d'un site transactionnel
+================================================================================
+
+Date : 2025
+Équipe : [Votre équipe]
+Cours : INF23307 - Analyse des applications en commerce électronique
+
+================================================================================
+TABLE DES MATIÈRES
+================================================================================
+
+1. INTRODUCTION ET CONTEXTE
+2. ARCHITECTURE TECHNIQUE
+3. STRUCTURE DU PROJET
+4. MODULES ET FONCTIONNALITÉS
+5. MODÈLES DE DONNÉES
+6. VUES ET LOGIQUE MÉTIER
+7. TEMPLATES ET INTERFACE UTILISATEUR
+8. RÈGLES D'AFFAIRES IMPLÉMENTÉES
+9. SIGNAUX DJANGO ET AUTOMATISATION
+10. INTERFACE D'ADMINISTRATION
+11. SYSTÈME D'AUTHENTIFICATION
+12. PROCESSUS E-COMMERCE COMPLET
+13. CONTINUITÉ AVEC LE TP#2
+14. FICHIERS ET SCRIPTS UTILITAIRES
+15. INSTRUCTIONS D'UTILISATION
+
+================================================================================
+1. INTRODUCTION ET CONTEXTE
+================================================================================
+
+Le projet Nordik Adventures est un système PGI (Progiciel de Gestion Intégré) 
+développé pour une entreprise fictive de commerce électronique spécialisée dans 
+les équipements de plein air. Ce projet fait suite au TP#2 qui consistait en 
+l'analyse et la modélisation du système.
+
+Le TP#3 consiste à développer un site web transactionnel fonctionnel qui met en 
+œuvre les processus, modules et règles d'affaires définis dans le TP#2. Le système 
+doit démontrer le fonctionnement intégré du PGI à travers une interface web 
+dynamique.
+
+OBJECTIFS DU PROJET :
+- Mettre en œuvre les règles d'affaires et relations de données du TP#2
+- Démontrer l'intégration des composantes essentielles d'un e-commerce
+- Offrir une expérience utilisateur simple, fluide et logique
+- Créer un prototype fonctionnel (Proof of Concept)
+
+TECHNOLOGIES UTILISÉES :
+- Framework : Django (Python)
+- Base de données : SQLite (développement) / MySQL (production possible)
+- Frontend : HTML5, CSS3, JavaScript
+- Authentification : Django Authentication System
+- Interface Admin : Django Admin
+
+================================================================================
+2. ARCHITECTURE TECHNIQUE
+================================================================================
+
+ARCHITECTURE GLOBALE :
+Le projet suit une architecture MVC (Model-View-Controller) adaptée à Django :
+- Models : Définition des données et règles métier (django.db.models)
+- Views : Logique de traitement des requêtes (views.py)
+- Templates : Présentation des données (templates/)
+- URLs : Routage des requêtes (urls.py)
+
+STRUCTURE EN MODULES :
+Le système est organisé en 4 modules Django interconnectés :
+
+1. Module "pgi" (Application principale)
+   - Tableau de bord
+   - Authentification (login, register, logout)
+   - Navigation principale
+   - Paramètres
+
+2. Module "stocks" (Gestion des produits et stocks)
+   - Catalogue produits
+   - Fiche produit détaillée
+   - Gestion des stocks
+   - Alertes de réapprovisionnement
+
+3. Module "finances" (Gestion financière et facturation)
+   - Tableau de bord financier
+   - Gestion des factures
+   - Gestion des dépenses
+   - Trésorerie
+
+4. Module "clients" (Gestion de la relation client)
+   - Panier d'achats
+   - Processus de commande (checkout)
+   - Historique des commandes
+   - Évaluation de satisfaction
+   - Historique d'activités client
+
+5. Module "common" (Modèles communs)
+   - Modèles partagés (TimeStampedModel)
+
+INTÉGRATION FRONT-END / BACK-END :
+- Le backend Django traite toutes les requêtes HTTP
+- Les templates Django génèrent le HTML dynamiquement
+- Les formulaires utilisent la protection CSRF de Django
+- Les sessions sont gérées par Django
+- Les fichiers statiques (CSS, JS) sont servis par Django
+
+INTÉGRATION BASE DE DONNÉES :
+- ORM Django pour toutes les opérations sur la base de données
+- Migrations Django pour la gestion du schéma
+- Relations ForeignKey, OneToOne, ManyToMany gérées par Django
+- Validation des données au niveau modèle et formulaire
+
+================================================================================
+3. STRUCTURE DU PROJET
+================================================================================
+
+ARBORESCENCE COMPLÈTE :
+
+PGI_Nordik_Adventures_VF/
+│
+├── backend/                    # Configuration Django principale
+│   ├── __init__.py
+│   ├── settings.py            # Paramètres du projet (DB, apps, middleware)
+│   ├── urls.py                # URLs principales du projet
+│   ├── wsgi.py                # Interface WSGI pour déploiement
+│   └── asgi.py                # Interface ASGI pour déploiement
+│
+├── pgi/                       # Application principale
+│   ├── __init__.py
+│   ├── models.py             # Modèles communs (si nécessaire)
+│   ├── views.py              # Vues : dashboard, login, register, settings
+│   ├── urls.py               # URLs de l'app principale
+│   ├── admin.py              # Configuration admin Django
+│   ├── apps.py               # Configuration de l'application
+│   └── management/
+│       └── commands/         # Commandes Django personnalisées
+│
+├── stocks/                    # Module Gestion des stocks
+│   ├── __init__.py
+│   ├── models.py             # Product, ProductCategory, Supplier, StockMovement
+│   ├── views.py              # stock_list, catalogue, product_detail
+│   ├── urls.py               # URLs du module stocks
+│   ├── admin.py              # Interface admin pour les produits
+│   ├── utils.py              # Fonctions utilitaires
+│   └── management/
+│       └── commands/
+│           ├── import_demo_stock.py        # Import produits de démo
+│           └── import_excel_products.py    # Import depuis Excel
+│
+├── finances/                  # Module Gestion financière
+│   ├── __init__.py
+│   ├── models.py             # Invoice, InvoiceLineItem, Expense, CashFlow
+│   ├── views.py              # finances, finances_factures, invoice_detail
+│   ├── urls.py               # URLs du module finances
+│   ├── admin.py              # Interface admin pour les finances
+│   └── utils.py              # Fonctions utilitaires
+│
+├── clients/                   # Module Gestion clients
+│   ├── __init__.py
+│   ├── models.py             # Client, ClientOrder, Cart, CartItem, etc.
+│   ├── views.py              # cart_view, checkout, my_orders, rate_order
+│   ├── urls.py               # URLs du module clients
+│   ├── admin.py              # Interface admin pour les clients
+│   ├── signals.py            # Signaux Django pour automatisation
+│   └── utils.py              # Fonctions utilitaires
+│
+├── common/                    # Modèles communs partagés
+│   ├── __init__.py
+│   ├── models.py             # TimeStampedModel (created_at, updated_at)
+│   └── apps.py
+│
+├── templates/                 # Templates HTML
+│   └── pgi/
+│       ├── index.html        # Tableau de bord principal
+│       ├── login.html        # Page de connexion
+│       ├── register.html     # Page d'inscription
+│       ├── stocks.html       # Liste des stocks (admin)
+│       ├── catalogue.html    # Catalogue produits public
+│       ├── product_detail.html   # Fiche produit détaillée
+│       ├── cart.html         # Panier d'achat
+│       ├── my_orders.html    # Historique commandes client
+│       ├── invoice_detail.html   # Détails d'une facture
+│       ├── rate_order.html   # Évaluation de commande
+│       ├── client_activity_history.html  # Historique activités (employés)
+│       ├── clients.html      # Liste clients (admin)
+│       ├── finances.html     # Tableau de bord financier
+│       ├── finances_factures.html    # Liste des factures
+│       ├── finances_achats.html     # Liste des dépenses
+│       ├── finances_tresorerie.html  # Trésorerie
+│       └── settings.html     # Paramètres
+│
+├── static/                    # Fichiers statiques (CSS, JS, images)
+│   └── style.css             # Styles CSS principaux
+│
+├── manage.py                  # Script de gestion Django
+├── requirements.txt           # Dépendances Python
+├── database.sql              # Export de la base de données
+├── db.sqlite3                # Base de données SQLite
+├── README.txt                # Documentation principale
+├── VERIFICATION_FINALE_TP3.md  # Vérification complète
+├── NETTOYAGE_PROJET.md       # Documentation du nettoyage
+├── export_database.py        # Script d'export SQL
+├── create_admin.py           # Script création superutilisateur
+└── start_server.py           # Script démarrage serveur
+
+================================================================================
+4. MODULES ET FONCTIONNALITÉS DÉTAILLÉES
+================================================================================
+
+4.1 MODULE PGI (Application principale)
+----------------------------------------
+
+FONCTIONNALITÉS :
+- Tableau de bord général avec vue d'ensemble de tous les modules
+- Système d'authentification complet (inscription, connexion, déconnexion)
+- Navigation cohérente entre tous les modules
+- Gestion des paramètres
+
+VUES PRINCIPALES :
+1. dashboard(request)
+   - Affiche les statistiques globales (stocks, finances, clients)
+   - KPIs principaux (CA, profit, produits actifs, clients actifs)
+   - Graphiques et visualisations
+   - Vue rapide par module
+
+2. login_view(request)
+   - Authentification des utilisateurs
+   - Utilise Django Authentication System
+   - Redirection vers le tableau de bord après connexion
+   - Gestion des messages d'erreur
+
+3. register(request)
+   - Inscription de nouveaux clients
+   - Crée un User Django et un Client associé
+   - Validation des données (email unique, mots de passe)
+   - Connexion automatique après inscription
+
+4. settings(request)
+   - Page de paramètres (à développer selon besoins)
+
+URLS :
+- / → Tableau de bord
+- /login/ → Connexion
+- /register/ → Inscription
+- /logout/ → Déconnexion
+- /parametres/ → Paramètres
+
+
+4.2 MODULE STOCKS (Gestion des produits et stocks)
+--------------------------------------------------
+
+FONCTIONNALITÉS :
+- Affichage de la liste des produits (vue admin)
+- Catalogue public des produits avec recherche et filtres
+- Fiche produit détaillée avec toutes les informations
+- Gestion automatique des stocks
+- Alertes de réapprovisionnement
+- Interface d'administration pour gérer les produits
+
+VUES PRINCIPALES :
+1. stock_list(request)
+   - Liste complète des produits pour les administrateurs
+   - Affichage des quantités, prix, statuts
+   - Alertes de réapprovisionnement
+   - Filtres et recherche
+
+2. catalogue(request)
+   - Catalogue public des produits actifs
+   - Recherche par nom de produit
+   - Filtre par catégorie
+   - Affichage des prix et stocks disponibles
+   - Accessible sans authentification
+
+3. product_detail(request, product_id)
+   - Fiche produit complète avec :
+     * Photo (si disponible)
+     * Nom, SKU, description
+     * Prix de vente et coût d'achat
+     * Quantité en stock et seuil de réapprovisionnement
+     * Catégorie et fournisseur
+     * Statut du produit
+     * Emplacement entrepôt
+   - Bouton "Ajouter au panier" (si connecté)
+   - Indication du statut du stock (en stock, faible, rupture)
+
+MODÈLES :
+- ProductCategory : Catégories de produits
+- Supplier : Fournisseurs
+- Product : Produits avec toutes leurs caractéristiques
+- StockMovement : Historique des mouvements de stock
+
+URLS :
+- /stocks/ → Liste des stocks (admin)
+- /stocks/catalogue/ → Catalogue public
+- /stocks/produit/<id>/ → Fiche produit
+
+
+4.3 MODULE FINANCES (Gestion financière et facturation)
+--------------------------------------------------------
+
+FONCTIONNALITÉS :
+- Tableau de bord financier avec statistiques
+- Gestion des factures (liste, détails)
+- Gestion des dépenses
+- Suivi de la trésorerie
+- Calcul automatique des taxes (TPS/TVQ)
+- Génération de factures
+
+VUES PRINCIPALES :
+1. finances(request)
+   - Tableau de bord financier
+   - Total des revenus, dépenses, solde net
+   - Nombre de factures impayées
+   - Graphiques (revenus/dépenses par mois)
+   - Répartition par type de dépense
+
+2. finances_factures(request)
+   - Liste de toutes les factures
+   - Filtres par statut
+   - Recherche
+
+3. invoice_detail(request, invoice_id)
+   - Détails complets d'une facture
+   - Informations client
+   - Lignes de facture avec produits
+   - Calculs TPS/TVQ
+   - Total avec taxes
+   - Bouton d'impression
+
+4. finances_achats(request)
+   - Liste des dépenses/achats
+
+5. finances_tresorerie(request)
+   - Flux de trésorerie
+
+MODÈLES :
+- Invoice : Factures clients
+- InvoiceLineItem : Lignes de facture
+- Expense : Dépenses
+- CashFlow : Flux de trésorerie
+
+URLS :
+- /finances/ → Tableau de bord financier
+- /finances/factures/ → Liste des factures
+- /finances/factures/<id>/ → Détails d'une facture
+- /finances/achats/ → Liste des dépenses
+- /finances/tresorerie/ → Trésorerie
+
+
+4.4 MODULE CLIENTS (Gestion de la relation client)
+---------------------------------------------------
+
+FONCTIONNALITÉS :
+- Panier d'achats avec calcul automatique des taxes
+- Processus de commande (checkout)
+- Historique des commandes client
+- Évaluation de satisfaction (1-5 étoiles)
+- Historique d'activités client (pour employés)
+- Gestion automatique du statut client
+
+VUES PRINCIPALES :
+1. cart_view(request)
+   - Affichage du panier du client connecté
+   - Liste des articles avec quantités
+   - Modification des quantités
+   - Retrait d'articles
+   - Calcul automatique : sous-total, TPS, TVQ, total
+   - Bouton "Passer la commande"
+
+2. add_to_cart(request, product_id)
+   - Ajoute un produit au panier
+   - Vérifie la disponibilité du stock
+   - Crée ou met à jour le CartItem
+   - Redirection vers le panier
+
+3. remove_from_cart(request, item_id)
+   - Retire un article du panier
+   - Supprime le CartItem
+
+4. update_cart_item(request, item_id)
+   - Met à jour la quantité d'un article
+   - Valide la quantité disponible
+
+5. checkout(request)
+   - Processus de commande complet :
+     * Crée une ClientOrder
+     * Crée les OrderLineItem depuis le panier
+     * Calcule le total
+     * Génère automatiquement une Invoice
+     * Diminue les stocks (via signal)
+     * Vide le panier
+     * Redirige vers la confirmation
+
+6. my_orders(request)
+   - Historique des commandes du client connecté
+   - Affichage des statuts
+   - Liens vers les factures
+   - Bouton d'évaluation pour les commandes complétées
+
+7. rate_order(request, order_id)
+   - Interface d'évaluation de commande
+   - Système d'étoiles (1-5)
+   - Commentaire optionnel
+   - Crée un OrderRating
+
+8. client_activity_history(request, client_id)
+   - Historique complet des activités d'un client
+   - Visible uniquement par les employés (is_staff)
+   - Timeline des actions (commandes, emails, appels, etc.)
+
+MODÈLES :
+- Client : Informations clients avec statuts (Prospect, Actif, Fidèle, Inactif)
+- ClientOrder : Commandes clients avec statuts
+- OrderLineItem : Lignes de commande
+- Cart : Panier d'achats
+- CartItem : Articles dans le panier
+- OrderRating : Évaluations de satisfaction
+- ClientActivityLog : Historique horodaté des activités
+- ClientInteraction : Interactions avec les clients
+
+URLS :
+- /clients/ → Liste des clients (admin)
+- /clients/panier/ → Panier d'achat
+- /clients/panier/ajouter/<id>/ → Ajouter au panier
+- /clients/panier/retirer/<id>/ → Retirer du panier
+- /clients/panier/modifier/<id>/ → Modifier quantité
+- /clients/commander/ → Checkout
+- /clients/mes-commandes/ → Historique commandes
+- /clients/commande/<id>/evaluer/ → Évaluer commande
+- /clients/client/<id>/historique/ → Historique activités (employés)
+
+================================================================================
+5. MODÈLES DE DONNÉES DÉTAILLÉS
+================================================================================
+
+5.1 MODULE STOCKS
+-----------------
+
+PRODUCTCATEGORY :
+- name : Nom de la catégorie (unique)
+- description : Description de la catégorie
+Relations : Product (ForeignKey)
+
+SUPPLIER :
+- name : Nom du fournisseur
+- code : Code fournisseur (unique)
+- default_discount : Remise fournisseur par défaut (%)
+- delivery_delay_days : Délai de livraison (jours)
+Relations : Product (ForeignKey)
+
+PRODUCT :
+- sku : Code SKU unique
+- category : Catégorie (ForeignKey → ProductCategory)
+- name : Nom du produit
+- description : Description détaillée
+- image : Photo du produit
+- purchase_cost : Coût d'achat ($)
+- sale_price : Prix de vente ($)
+- gross_margin_percent : Marge brute (%)
+- quantity_in_stock : Quantité en stock
+- reorder_threshold : Seuil de réapprovisionnement
+- safety_stock : Stock minimum de sécurité
+- supplier : Fournisseur (ForeignKey → Supplier)
+- supplier_discount : Remise fournisseur (%)
+- weight_kg : Poids (kg)
+- stock_entry_date : Date d'entrée en stock
+- warehouse_location : Emplacement entrepôt
+- status : Statut (active/inactive)
+- created_at, updated_at : Horodatage automatique
+
+Propriétés calculées :
+- total_stock_value : Valeur totale du stock (quantité × coût)
+- is_below_reorder : Booléen si stock ≤ seuil
+
+Validations :
+- SKU unique
+- sale_price > purchase_cost
+- Quantités positives
+
+STOCKMOVEMENT :
+- product : Produit (ForeignKey → Product)
+- movement_type : Type (IN/OUT)
+- quantity : Quantité
+- reason : Raison du mouvement
+- reference : Référence (ex: numéro de commande)
+- created_at : Date du mouvement
+
+
+5.2 MODULE FINANCES
+-------------------
+
+INVOICE :
+- invoice_number : Numéro de facture
+- client : Client (ForeignKey → Client)
+- invoice_date : Date de facture
+- due_date : Date d'échéance
+- amount : Montant HT
+- tps : TPS (5%)
+- tvq : TVQ (9.975%)
+- total_amount : Total TTC
+- status : Statut (PENDING, PAID, OVERDUE, CANCELLED)
+- notes : Notes
+- created_at, updated_at : Horodatage
+
+Calculs automatiques :
+- TPS = amount × 0.05
+- TVQ = amount × 0.09975
+- total_amount = amount + tps + tvq
+
+INVOICELINEITEM :
+- invoice : Facture (ForeignKey → Invoice)
+- product : Produit (ForeignKey → Product)
+- quantity : Quantité
+- unit_price : Prix unitaire
+- total_price : Total (quantity × unit_price)
+
+EXPENSE :
+- expense_number : Numéro de dépense
+- expense_type : Type de dépense
+- amount : Montant
+- expense_date : Date
+- status : Statut (PENDING, PAID, CANCELLED)
+- description : Description
+- created_at, updated_at : Horodatage
+
+CASHFLOW :
+- flow_type : Type (INCOME, EXPENSE)
+- amount : Montant
+- flow_date : Date
+- description : Description
+- reference : Référence
+- created_at : Horodatage
+
+
+5.3 MODULE CLIENTS
+------------------
+
+CLIENT :
+- name : Nom complet
+- email : Email (unique)
+- phone : Téléphone
+- address : Adresse
+- client_type : Type (INDIVIDUAL, BUSINESS)
+- status : Statut (PROSPECT, ACTIVE, LOYAL, INACTIVE)
+- loyalty_score : Score de fidélité
+- satisfaction_score : Score de satisfaction
+- total_orders : Nombre total de commandes
+- total_spent : Montant total dépensé
+- created_at, updated_at : Horodatage
+
+Propriétés calculées :
+- total_orders : Nombre de commandes
+- total_spent : Montant total dépensé
+
+CLIENTORDER :
+- order_number : Numéro de commande (unique)
+- client : Client (ForeignKey → Client)
+- order_date : Date de commande
+- total_amount : Montant total
+- status : Statut (RECEIVED, PROCESSING, SHIPPED, INVOICED, PAID, CANCELLED)
+- notes : Notes
+- created_at, updated_at : Horodatage
+
+Relations :
+- line_items : OrderLineItem (ForeignKey)
+- rating : OrderRating (OneToOne, optionnel)
+
+ORDERLINEITEM :
+- order : Commande (ForeignKey → ClientOrder)
+- product : Produit (ForeignKey → Product)
+- quantity : Quantité
+- unit_price : Prix unitaire
+- total_price : Total (quantity × unit_price)
+
+CART :
+- client : Client (OneToOne → Client)
+- created_at, updated_at : Horodatage
+
+Propriétés calculées :
+- subtotal : Sous-total (somme des items)
+- tps : TPS (5%)
+- tvq : TVQ (9.975%)
+- total : Total TTC
+
+CARTITEM :
+- cart : Panier (ForeignKey → Cart)
+- product : Produit (ForeignKey → Product)
+- quantity : Quantité
+- unit_price : Prix unitaire
+- total_price : Total (quantity × unit_price)
+
+Validations :
+- Vérification stock disponible
+- Quantités positives
+
+ORDERRATING :
+- order : Commande (OneToOne → ClientOrder)
+- rating : Note (1-5)
+- comment : Commentaire optionnel
+- created_at : Horodatage
+
+CLIENTACTIVITYLOG :
+- client : Client (ForeignKey → Client)
+- activity_type : Type (ORDER, EMAIL, CALL, MEETING, OTHER)
+- description : Description
+- page_url : URL de la page (optionnel)
+- document : Document PDF (optionnel)
+- user : Utilisateur employé (ForeignKey → User, optionnel)
+- created_at : Horodatage
+
+CLIENTINTERACTION :
+- client : Client (ForeignKey → Client)
+- interaction_type : Type d'interaction
+- subject : Sujet
+- description : Description
+- interaction_date : Date
+- user : Utilisateur (ForeignKey → User)
+- created_at, updated_at : Horodatage
+
+
+5.4 MODULE COMMON
+-----------------
+
+TIMESTAMPEDMODEL :
+Modèle abstrait fournissant :
+- created_at : Date de création automatique
+- updated_at : Date de mise à jour automatique
+
+Utilisé par : Product, Client, ClientOrder, Invoice, etc.
+
+================================================================================
+6. VUES ET LOGIQUE MÉTIER DÉTAILLÉE
+================================================================================
+
+6.1 PROCESSUS D'AUTHENTIFICATION
+---------------------------------
+
+INSCRIPTION (register) :
+1. L'utilisateur remplit le formulaire (nom, email, mot de passe, etc.)
+2. Validation côté serveur :
+   - Email unique
+   - Mots de passe identiques
+   - Longueur minimale du mot de passe
+3. Création d'un User Django :
+   - Username généré depuis l'email
+   - Email et mot de passe hashés
+4. Création d'un Client associé :
+   - Statut initial : PROSPECT
+   - Informations complémentaires (téléphone, adresse)
+5. Connexion automatique de l'utilisateur
+6. Redirection vers le tableau de bord
+
+CONNEXION (login_view) :
+1. L'utilisateur saisit email et mot de passe
+2. Recherche du User par email
+3. Authentification avec Django (authenticate)
+4. Si succès : login() et redirection
+5. Si échec : message d'erreur
+
+DÉCONNEXION (logout) :
+- Utilise Django LogoutView
+- Redirection vers la page de connexion
+
+
+6.2 PROCESSUS D'ACHAT COMPLET
+-------------------------------
+
+ÉTAPE 1 : NAVIGATION CATALOGUE
+- L'utilisateur (connecté ou non) parcourt le catalogue
+- Recherche et filtres disponibles
+- Affichage des prix et stocks
+
+ÉTAPE 2 : CONSULTATION FICHE PRODUIT
+- Clic sur un produit → product_detail
+- Affichage de toutes les informations
+- Si connecté : bouton "Ajouter au panier"
+- Si non connecté : invitation à se connecter
+
+ÉTAPE 3 : AJOUT AU PANIER
+- Clic sur "Ajouter au panier" → add_to_cart
+- Vérification :
+  * Utilisateur connecté
+  * Stock disponible
+- Création ou récupération du Cart du client
+- Création ou mise à jour du CartItem
+- Calcul automatique des totaux
+- Redirection vers le panier
+
+ÉTAPE 4 : GESTION DU PANIER
+- Affichage de tous les articles (cart_view)
+- Modification des quantités (update_cart_item)
+- Retrait d'articles (remove_from_cart)
+- Calcul automatique en temps réel :
+  * Sous-total
+  * TPS (5%)
+  * TVQ (9.975%)
+  * Total TTC
+
+ÉTAPE 5 : CHECKOUT
+- Clic sur "Passer la commande" → checkout
+- Vérifications :
+  * Panier non vide
+  * Stock disponible pour tous les articles
+- Création de la ClientOrder :
+  * Génération du numéro de commande unique
+  * Date de commande = aujourd'hui
+  * Statut initial : RECEIVED
+  * Calcul du total
+- Création des OrderLineItem :
+  * Un par article du panier
+  * Quantité et prix unitaire
+- Génération automatique de l'Invoice :
+  * Numéro de facture lié à la commande
+  * Date de facture = aujourd'hui
+  * Échéance = +30 jours
+  * Statut : PENDING
+  * Calcul TPS/TVQ automatique
+- Création des InvoiceLineItem :
+  * Un par ligne de commande
+- Déclenchement des signaux Django :
+  * Mise à jour du stock (diminution)
+  * Création de StockMovement
+  * Création de ClientActivityLog
+  * Mise à jour du statut client (Prospect → Actif)
+  * Message de bienvenue si première commande
+- Vidage du panier
+- Redirection vers la confirmation
+
+ÉTAPE 6 : CONFIRMATION ET SUIVI
+- L'utilisateur peut voir sa commande dans "Mes commandes"
+- Accès à la facture générée
+- Possibilité d'évaluer la commande après réception
+
+
+6.3 CALCULS AUTOMATIQUES
+-------------------------
+
+CALCUL DU PANIER (Cart) :
+- subtotal = somme(quantity × unit_price) pour tous les CartItem
+- tps = subtotal × 0.05
+- tvq = subtotal × 0.09975
+- total = subtotal + tps + tvq
+
+CALCUL DE LA FACTURE (Invoice) :
+- amount = somme(quantity × unit_price) pour tous les InvoiceLineItem
+- tps = amount × 0.05
+- tvq = amount × 0.09975
+- total_amount = amount + tps + tvq
+
+CALCUL DE LA MARGE BRUTE (Product) :
+- gross_margin_percent = ((sale_price - purchase_cost) / sale_price) × 100
+
+CALCUL DU STATUT CLIENT :
+- Prospect → Actif : première commande
+- Actif → Fidèle : 5 commandes OU 3000$ dépensés
+
+
+6.4 VALIDATIONS
+---------------
+
+VALIDATION PRODUIT :
+- SKU unique (au niveau base de données et clean())
+- sale_price > purchase_cost (dans clean())
+- Quantités positives
+
+VALIDATION PANIER :
+- Stock disponible avant ajout (dans add_to_cart)
+- Quantité ≤ stock disponible (dans update_cart_item)
+- Panier non vide avant checkout
+
+VALIDATION COMMANDE :
+- Stock disponible pour tous les articles (dans checkout)
+- Client connecté
+- Panier valide
+
+VALIDATION FACTURE :
+- Montants positifs
+- Calculs TPS/TVQ automatiques
+
+================================================================================
+7. TEMPLATES ET INTERFACE UTILISATEUR
+================================================================================
+
+7.1 STRUCTURE DES TEMPLATES
+---------------------------
+
+Tous les templates utilisent :
+- Django Template Language (DTL)
+- Système d'héritage (block/extends)
+- Inclusion de templates communs
+- Tags Django ({% url %}, {% csrf_token %}, etc.)
+- Filtres Django (|floatformat, |date, etc.)
+
+NAVIGATION :
+- Sidebar avec liens vers tous les modules
+- Header avec informations utilisateur
+- Footer avec copyright
+
+MESSAGES :
+- Système de messages Django (success, error, warning, info)
+- Affichage en haut de page
+- Disparition automatique
+
+7.2 TEMPLATES PRINCIPAUX
+------------------------
+
+INDEX.HTML (Tableau de bord) :
+- KPIs principaux (CA, profit, produits, clients)
+- Graphiques Chart.js
+- Vue rapide par module
+- Tableau de synthèse
+- Timeline des événements
+
+CATALOGUE.HTML :
+- En-tête avec titre
+- Barre de recherche et filtre par catégorie
+- Grille de produits responsive
+- Carte produit avec :
+  * Image (placeholder)
+  * Nom et catégorie
+  * Prix
+  * Stock disponible
+  * Bouton "Voir les détails"
+- État vide si aucun produit
+
+PRODUCT_DETAIL.HTML :
+- Image produit (placeholder)
+- Informations complètes :
+  * Nom, SKU, catégorie
+  * Prix de vente
+  * Statut du stock (en stock, faible, rupture)
+  * Description
+  * Spécifications (fournisseur, coût, stock, etc.)
+- Bouton "Ajouter au panier" (si connecté et stock disponible)
+- Lien retour au catalogue
+
+CART.HTML :
+- Liste des articles du panier :
+  * Image produit
+  * Nom et SKU
+  * Prix unitaire
+  * Quantité (modifiable)
+  * Total ligne
+  * Bouton retirer
+- Résumé de commande :
+  * Sous-total
+  * TPS
+  * TVQ
+  * Total TTC
+- Bouton "Passer la commande"
+- État vide si panier vide
+
+MY_ORDERS.HTML :
+- Carte par commande :
+  * Numéro et date
+  * Statut (badge coloré)
+  * Liste des articles
+  * Total
+  * Liens vers facture et évaluation
+- État vide si aucune commande
+
+INVOICE_DETAIL.HTML :
+- En-tête avec informations entreprise
+- Informations facture (numéro, dates, statut)
+- Informations client
+- Tableau des lignes de facture
+- Totaux (HT, TPS, TVQ, TTC)
+- Bouton d'impression
+- Notes si présentes
+
+RATE_ORDER.HTML :
+- Informations de la commande
+- Système d'étoiles interactif (JavaScript)
+- Champ commentaire
+- Boutons Annuler/Soumettre
+
+REGISTER.HTML :
+- Formulaire d'inscription :
+  * Nom complet
+  * Email
+  * Téléphone (optionnel)
+  * Adresse (optionnel)
+  * Mot de passe
+  * Confirmation mot de passe
+- Design cohérent avec login.html
+- Lien vers connexion
+
+LOGIN.HTML :
+- Formulaire de connexion :
+  * Email
+  * Mot de passe
+  * Case "Se souvenir de moi"
+- Design moderne avec gradient
+- Lien vers inscription
+
+7.3 DESIGN ET STYLES
+---------------------
+
+STYLE.CSS :
+- Variables CSS pour couleurs et espacements
+- Design moderne et professionnel
+- Responsive (mobile-friendly)
+- Animations et transitions
+- Icônes Font Awesome
+
+COULEURS PRINCIPALES :
+- Primaire : #1d4ed8 (bleu)
+- Accent : #38bdf8 (bleu clair)
+- Succès : #22c55e (vert)
+- Erreur : #ef4444 (rouge)
+- Fond : #0b1120 (bleu foncé)
+
+================================================================================
+8. RÈGLES D'AFFAIRES IMPLÉMENTÉES
+================================================================================
+
+8.1 RÈGLES DU MODULE STOCKS
+---------------------------
+
+RÈGLE 1 : SKU UNIQUE
+- Implémentation : unique=True dans Product.sku
+- Validation : clean() vérifie l'unicité
+- Fichier : stocks/models.py
+- Impact : Empêche les doublons de produits
+
+RÈGLE 2 : PRIX DE VENTE > COÛT D'ACHAT
+- Implémentation : Validation dans Product.clean()
+- Code : if self.sale_price <= self.purchase_cost: raise ValidationError
+- Fichier : stocks/models.py
+- Impact : Garantit une marge positive
+
+RÈGLE 3 : DIMINUTION AUTOMATIQUE DU STOCK LORS D'UNE VENTE
+- Implémentation : Signal handle_client_order_save()
+- Code : product.quantity_in_stock -= line_item.quantity
+- Fichier : clients/signals.py
+- Impact : Stock toujours à jour après chaque vente
+
+RÈGLE 4 : ENREGISTREMENT DES MOUVEMENTS DE STOCK
+- Implémentation : Création de StockMovement dans le signal
+- Code : StockMovement.objects.create(...)
+- Fichier : clients/signals.py
+- Impact : Traçabilité complète des mouvements
+
+RÈGLE 5 : ALERTE DE RÉAPPROVISIONNEMENT
+- Implémentation : Propriété Product.is_below_reorder
+- Code : return self.quantity_in_stock <= self.reorder_threshold
+- Fichier : stocks/models.py
+- Impact : Affichage d'alertes visuelles dans l'interface
+
+
+8.2 RÈGLES DU MODULE FINANCES
+------------------------------
+
+RÈGLE 6 : CALCUL AUTOMATIQUE DES TAXES (TPS/TVQ)
+- Implémentation : Propriétés calculées et clean()
+- TPS : amount × 0.05 (5%)
+- TVQ : amount × 0.09975 (9.975%)
+- Fichiers : finances/models.py (Invoice), clients/models.py (Cart)
+- Impact : Taxes toujours calculées correctement
+
+RÈGLE 7 : CRÉATION AUTOMATIQUE DE FACTURE LORS DU CHECKOUT
+- Implémentation : Dans checkout() et signal
+- Code : Invoice.objects.create(...) avec InvoiceLineItem
+- Fichier : clients/views.py (checkout), clients/signals.py
+- Impact : Chaque commande génère automatiquement une facture
+
+RÈGLE 8 : STATUTS DE PAIEMENT
+- Implémentation : Modèle Invoice avec statuts
+- Statuts : PENDING, PAID, OVERDUE, CANCELLED
+- Fichier : finances/models.py
+- Impact : Suivi précis de l'état des paiements
+
+
+8.3 RÈGLES DU MODULE CLIENTS
+-----------------------------
+
+RÈGLE 9 : CHANGEMENT AUTOMATIQUE DE STATUT CLIENT
+- Prospect → Actif : Lors de la première commande
+- Actif → Fidèle : 5 commandes OU 3000$ dépensés
+- Implémentation : Signal handle_client_order_save()
+- Code : Vérification de total_orders et total_spent
+- Fichier : clients/signals.py
+- Impact : Classification automatique des clients
+
+RÈGLE 10 : MESSAGE DE BIENVENUE AUTOMATISÉ
+- Implémentation : Signal lors de la première commande
+- Code : Création de ClientActivityLog avec type EMAIL
+- Fichier : clients/signals.py
+- Impact : Accueil personnalisé pour nouveaux clients
+
+RÈGLE 11 : CRÉATION AUTOMATIQUE D'ACTIVITÉS CLIENT
+- Implémentation : Signal crée ClientActivityLog pour chaque commande
+- Code : ClientActivityLog.objects.create(...)
+- Fichier : clients/signals.py
+- Impact : Historique complet automatique
+
+RÈGLE 12 : VALIDATION DU STOCK DISPONIBLE
+- Implémentation : Dans add_to_cart, update_cart_item, checkout
+- Code : Vérification quantity <= product.quantity_in_stock
+- Fichiers : clients/views.py
+- Impact : Empêche les ventes de produits en rupture
+
+RÈGLE 13 : CALCUL AUTOMATIQUE DES TOTAUX
+- Panier : Calcul automatique subtotal, TPS, TVQ, total
+- Commande : Total = somme des lignes
+- Facture : Calcul automatique avec taxes
+- Fichiers : clients/models.py (Cart), finances/models.py (Invoice)
+- Impact : Totaux toujours à jour
+
+================================================================================
+9. SIGNAUX DJANGO ET AUTOMATISATION
+================================================================================
+
+9.1 PRINCIPE DES SIGNAUX
+-------------------------
+
+Les signaux Django permettent d'exécuter du code automatiquement lors d'événements 
+spécifiques (création, modification, suppression d'objets). Cela permet de séparer 
+la logique métier de la logique de présentation.
+
+FICHIER : clients/signals.py
+
+9.2 SIGNAUX IMPLÉMENTÉS
+-----------------------
+
+SIGNAUX 1 : HANDLE_CLIENT_ORDER_SAVE
+Déclenché : Lors de la création ou modification d'une ClientOrder
+
+Actions automatiques :
+1. Mise à jour du statut client (Prospect → Actif)
+   - Si première commande : status = ACTIVE
+   - Création d'un message de bienvenue
+
+2. Création d'une activité client
+   - ClientActivityLog avec type ORDER
+   - Description avec numéro de commande et montant
+
+3. Création d'une facture associée
+   - Invoice avec numéro lié à la commande
+   - Date d'échéance = +30 jours
+   - Statut PENDING
+   - Création des InvoiceLineItem depuis les OrderLineItem
+
+4. Diminution du stock
+   - Pour chaque produit vendu : quantity_in_stock -= quantity
+   - Création d'un StockMovement (type OUT)
+   - Raison : "Vente - Commande #XXX"
+
+5. Mise à jour vers statut Fidèle
+   - Si total_orders >= 5 OU total_spent >= 3000
+   - status = LOYAL
+   - Création d'une activité
+
+Code clé :
+@receiver(post_save, sender=ClientOrder)
+def handle_client_order_save(sender, instance, created, **kwargs):
+    if created:
+        # Toutes les actions automatiques
+        ...
+
+SIGNAUX 2 : HANDLE_INVOICE_SAVE
+Déclenché : Lors de la modification d'une Invoice
+
+Actions automatiques :
+1. Mise à jour du statut de commande
+   - Si facture payée (status = PAID)
+   - Commande associée → status = PAID
+   - Création d'une activité client
+
+Code clé :
+@receiver(post_save, sender=Invoice)
+def handle_invoice_save(sender, instance, created, **kwargs):
+    if instance.status == Invoice.STATUS_PAID:
+        # Mise à jour commande
+        ...
+
+9.3 CONFIGURATION DES SIGNAUX
+-----------------------------
+
+Les signaux doivent être importés dans apps.py pour être activés :
+
+FICHIER : clients/apps.py
+class ClientsConfig(AppConfig):
+    def ready(self):
+        import clients.signals  # Import des signaux
+
+================================================================================
+10. INTERFACE D'ADMINISTRATION
+================================================================================
+
+10.1 CONFIGURATION DJANGO ADMIN
+--------------------------------
+
+L'interface d'administration Django est activée par défaut et configurée dans 
+chaque module via les fichiers admin.py.
+
+ACCÈS :
+- URL : http://127.0.0.1:8000/admin/
+- Nécessite un superutilisateur (créé via createsuperuser)
+
+10.2 MODULE STOCKS - ADMIN
+---------------------------
+
+PRODUCTADMIN :
+- Liste : SKU, nom, catégorie, prix, stock, statut, fournisseur
+- Filtres : Statut, catégorie, fournisseur
+- Recherche : SKU, nom, description
+- Champs en lecture seule : created_at, updated_at, total_stock_value, is_below_reorder
+- Fieldsets organisés : Informations générales, Prix, Stock, Fournisseur, etc.
+
+PRODUCTCATEGORYADMIN :
+- Liste : Nom, description
+- Recherche : Nom, description
+
+SUPPLIERADMIN :
+- Liste : Code, nom, remise, délai
+- Filtres : Remise
+- Recherche : Code, nom
+
+STOCKMOVEMENTADMIN :
+- Liste : Produit, type, quantité, raison, date
+- Filtres : Type, date
+- Recherche : Produit, raison
+
+10.3 MODULE CLIENTS - ADMIN
+----------------------------
+
+CLIENTADMIN :
+- Liste : Nom, email, type, statut, scores, commandes, dépenses
+- Filtres : Type, statut, score de fidélité
+- Recherche : Nom, email, téléphone
+
+CLIENTORDERADMIN :
+- Liste : Numéro, client, montant, date, statut
+- Filtres : Statut, date
+- Recherche : Numéro, client
+- Inline : OrderLineItem (modification directe des lignes)
+
+CARTADMIN :
+- Liste : Client, nombre d'articles, total
+- Inline : CartItem
+
+CLIENTACTIVITYLOGADMIN :
+- Liste : Client, type, description, date, utilisateur
+- Filtres : Type, date
+- Recherche : Client, description
+- Hiérarchie de dates
+
+10.4 MODULE FINANCES - ADMIN
+-----------------------------
+
+INVOICEADMIN :
+- Liste : Numéro, client, montant, date, statut
+- Filtres : Statut, date
+- Recherche : Numéro, client
+- Inline : InvoiceLineItem
+
+EXPENSEADMIN :
+- Liste : Numéro, type, montant, date, statut
+- Filtres : Type, statut, date
+- Recherche : Numéro, description
+
+10.5 FONCTIONNALITÉS ADMIN
+---------------------------
+
+GESTION DES COMMANDES :
+- Changement de statut : Réception → Préparation → Expédiée → Facturée → Payée
+- Modification des lignes de commande
+- Visualisation des factures associées
+
+GESTION DES PRODUITS :
+- Ajout de nouveaux produits
+- Modification des informations
+- Désactivation (status = inactive)
+- Visualisation des alertes de réapprovisionnement
+
+GESTION DES CLIENTS :
+- Visualisation des statistiques (commandes, dépenses)
+- Modification du statut client
+- Accès à l'historique d'activités
+
+================================================================================
+11. SYSTÈME D'AUTHENTIFICATION
+================================================================================
+
+11.1 DJANGO AUTHENTICATION SYSTEM
+----------------------------------
+
+Le projet utilise le système d'authentification intégré de Django (django.contrib.auth).
+
+COMPOSANTS :
+- User : Modèle utilisateur Django (username, email, password hashé)
+- Groups : Groupes d'utilisateurs
+- Permissions : Permissions granulaires
+
+11.2 PROCESSUS D'INSCRIPTION
+-----------------------------
+
+1. Formulaire d'inscription (register.html)
+2. Validation des données :
+   - Email unique
+   - Mots de passe identiques
+   - Longueur minimale
+3. Création User Django :
+   - Username généré depuis email (partie avant @)
+   - Email et mot de passe
+   - Prénom et nom extraits
+4. Création Client associé :
+   - Lien OneToOne avec User (via email)
+   - Statut initial : PROSPECT
+5. Connexion automatique (login())
+6. Redirection vers dashboard
+
+11.3 PROCESSUS DE CONNEXION
+---------------------------
+
+1. Formulaire de connexion (login.html)
+2. Recherche User par email
+3. Authentification Django (authenticate)
+4. Si succès :
+   - login(request, user)
+   - Message de bienvenue
+   - Redirection vers dashboard
+5. Si échec :
+   - Message d'erreur
+   - Affichage du formulaire
+
+11.4 GESTION DES SESSIONS
+--------------------------
+
+- Sessions gérées par Django (django.contrib.sessions)
+- Stockage en base de données (par défaut)
+- Expiration configurable
+- Protection CSRF activée
+
+11.5 PROTECTION DES PAGES
+-------------------------
+
+DÉCORATEURS UTILISÉS :
+- @login_required : Pages nécessitant une connexion
+  * Panier, checkout, mes commandes, etc.
+- @user_passes_test(is_staff_or_superuser) : Pages réservées aux employés
+  * Historique d'activités client
+
+REDIRECTIONS :
+- Pages protégées → Redirection vers /login/ si non connecté
+- Après connexion → Redirection vers la page demandée
+
+11.6 RÔLES ET PERMISSIONS
+--------------------------
+
+RÔLES :
+- Client : Utilisateur standard (peut acheter, voir ses commandes)
+- Employé (is_staff=True) : Accès admin + historique clients
+- Superutilisateur (is_superuser=True) : Accès complet
+
+VÉRIFICATIONS :
+- is_staff_or_superuser() : Fonction de test pour les employés
+- Utilisée dans @user_passes_test pour restreindre l'accès
+
+================================================================================
+12. PROCESSUS E-COMMERCE COMPLET
+================================================================================
+
+12.1 PARCOURS CLIENT NON CONNECTÉ
+-----------------------------------
+
+1. Arrivée sur le site → Tableau de bord ou catalogue
+2. Navigation dans le catalogue :
+   - Recherche de produits
+   - Filtrage par catégorie
+   - Consultation des fiches produits
+3. Tentative d'ajout au panier :
+   - Redirection vers /login/
+   - Message d'invitation à se connecter
+4. Inscription ou connexion
+5. Retour au catalogue ou panier
+
+12.2 PARCOURS CLIENT CONNECTÉ
+------------------------------
+
+1. Navigation dans le catalogue
+2. Consultation fiche produit :
+   - Toutes les informations disponibles
+   - Bouton "Ajouter au panier" visible
+3. Ajout au panier :
+   - Vérification stock disponible
+   - Ajout ou mise à jour du CartItem
+   - Message de confirmation
+   - Redirection vers le panier
+4. Gestion du panier :
+   - Modification des quantités
+   - Retrait d'articles
+   - Visualisation des totaux (HT, TPS, TVQ, TTC)
+5. Checkout :
+   - Vérification finale du stock
+   - Création de la commande
+   - Génération de la facture
+   - Mise à jour des stocks
+   - Vidage du panier
+   - Message de confirmation
+6. Suivi de commande :
+   - Visualisation dans "Mes commandes"
+   - Accès à la facture
+   - Évaluation après réception
+
+12.3 PARCOURS ADMINISTRATEUR
+-----------------------------
+
+1. Connexion avec compte admin
+2. Accès à l'interface d'administration (/admin/)
+3. Gestion des produits :
+   - Ajout, modification, désactivation
+   - Visualisation des alertes de réapprovisionnement
+4. Gestion des commandes :
+   - Visualisation de toutes les commandes
+   - Changement de statut
+   - Suivi des paiements
+5. Gestion des clients :
+   - Visualisation des statistiques
+   - Accès à l'historique d'activités
+   - Modification des statuts
+6. Gestion financière :
+   - Visualisation des factures
+   - Suivi des paiements
+   - Gestion des dépenses
+
+12.4 FLUX DE DONNÉES
+---------------------
+
+CATALOGUE → PANIER :
+- Product → CartItem (avec quantité et prix)
+- Stock vérifié à chaque étape
+
+PANIER → COMMANDE :
+- CartItem → OrderLineItem
+- Cart → ClientOrder
+- Calcul du total
+
+COMMANDE → FACTURE :
+- ClientOrder → Invoice (automatique)
+- OrderLineItem → InvoiceLineItem
+- Calcul des taxes
+
+COMMANDE → STOCK :
+- Diminution automatique (signal)
+- Création de StockMovement
+- Mise à jour en temps réel
+
+COMMANDE → CLIENT :
+- Mise à jour total_orders et total_spent
+- Changement de statut si nécessaire
+- Création d'activités
+
+================================================================================
+13. CONTINUITÉ AVEC LE TP#2
+================================================================================
+
+13.1 RESPECT DU MODÈLE DE DONNÉES
+----------------------------------
+
+Tous les modèles du TP#2 ont été implémentés dans Django :
+- Product, ProductCategory, Supplier (Module Stocks)
+- Invoice, InvoiceLineItem, Expense, CashFlow (Module Finances)
+- Client, ClientOrder, OrderLineItem (Module Clients)
+- Relations ForeignKey et OneToOne respectées
+- Champs et types de données conformes
+
+13.2 RÈGLES D'AFFAIRES IMPLÉMENTÉES
+-----------------------------------
+
+Les 10 règles d'affaires principales du TP#2 sont toutes implémentées :
+
+1. ✅ SKU unique
+2. ✅ Prix vente > coût achat
+3. ✅ Diminution stock automatique
+4. ✅ Calcul TPS/TVQ automatique
+5. ✅ Alerte réapprovisionnement
+6. ✅ Message bienvenue première commande
+7. ✅ Création interaction client automatique
+8. ✅ Enregistrement mouvements stock
+9. ✅ Création facture automatique
+10. ✅ Validation stock disponible
+
+13.3 PROCESSUS MÉTIER
+---------------------
+
+Les processus définis dans le TP#2 sont opérationnels :
+- Processus de vente (catalogue → panier → commande → facture)
+- Processus de gestion de stock (alertes, mouvements)
+- Processus de relation client (statuts, activités, évaluations)
+- Processus financier (facturation, paiements, trésorerie)
+
+13.4 ADAPTATIONS TECHNIQUES
+----------------------------
+
+Quelques adaptations mineures pour Django :
+- Utilisation de TimeStampedModel pour created_at/updated_at
+- Ajout de Cart et CartItem pour le panier (non dans TP#2 mais nécessaire)
+- ClientActivityLog pour l'historique (conforme TP#2)
+- OrderRating pour les évaluations (conforme TP#2)
+
+================================================================================
+14. FICHIERS ET SCRIPTS UTILITAIRES
+================================================================================
+
+14.1 SCRIPTS DE GESTION
+-----------------------
+
+MANAGE.PY :
+- Script principal Django
+- Commandes : runserver, migrate, createsuperuser, shell, etc.
+- Usage : python manage.py <commande>
+
+START_SERVER.PY :
+- Script de démarrage simplifié
+- Vérifie les migrations
+- Lance le serveur Django
+- Usage : python start_server.py
+
+CREATE_ADMIN.PY :
+- Création automatique d'un superutilisateur
+- Configuration : admin / admin@nordik.local / Azerty123!
+- Usage : python create_admin.py
+
+14.2 COMMANDES DJANGO PERSONNALISÉES
+-------------------------------------
+
+IMPORT_DEMO_STOCK :
+- Import de produits de démonstration
+- Fichier : stocks/management/commands/import_demo_stock.py
+- Usage : python manage.py import_demo_stock
+- Données : ~30 produits de test
+
+IMPORT_EXCEL_PRODUITS :
+- Import depuis fichier Excel
+- Fichier : stocks/management/commands/import_excel_products.py
+- Usage : python manage.py import_excel_products --excel-file "fichier.xlsx"
+- Fonctionnalités :
+  * Lecture du fichier Excel
+  * Création automatique des catégories et fournisseurs
+  * Import des produits avec toutes les données
+  * Option --update pour mettre à jour les produits existants
+
+14.3 SCRIPTS D'EXPORT
+---------------------
+
+EXPORT_DATABASE.PY :
+- Export de la base de données SQLite en fichier SQL
+- Fichier : export_database.py
+- Usage : python export_database.py
+- Résultat : database.sql avec structure et données
+- Compatible MySQL/PostgreSQL (avec adaptations)
+
+14.4 FICHIERS DE CONFIGURATION
+-------------------------------
+
+REQUIREMENTS.TXT :
+- Liste des dépendances Python
+- Django, Pillow, openpyxl, etc.
+- Usage : pip install -r requirements.txt
+
+SETTINGS.PY :
+- Configuration principale Django
+- Base de données, apps installées, middleware, etc.
+- Fichier : backend/settings.py
+
+14.5 DOCUMENTATION
+------------------
+
+README.TXT :
+- Instructions d'installation complètes
+- Structure du projet
+- Commandes utiles
+- Dépannage
+
+VERIFICATION_FINALE_TP3.MD :
+- Vérification complète de toutes les exigences
+- État d'avancement détaillé
+- Conformité TP#3
+
+NETTOYAGE_PROJET.MD :
+- Liste des fichiers supprimés
+- Raisons du nettoyage
+
+================================================================================
+15. INSTRUCTIONS D'UTILISATION
+================================================================================
+
+15.1 INSTALLATION
+-----------------
+
+1. Prérequis :
+   - Python 3.8+
+   - pip
+
+2. Installation des dépendances :
+   pip install -r requirements.txt
+
+3. Configuration de la base de données :
+   python manage.py migrate
+
+4. Création d'un superutilisateur :
+   python manage.py createsuperuser
+   OU
+   python create_admin.py
+
+5. Import de données de démonstration (optionnel) :
+   python manage.py import_demo_stock
+
+15.2 DÉMARRAGE
+--------------
+
+Méthode 1 (recommandée) :
+python start_server.py
+
+Méthode 2 :
+python manage.py runserver
+
+Accès :
+- Site : http://127.0.0.1:8000/
+- Admin : http://127.0.0.1:8000/admin/
+
+15.3 UTILISATION
+----------------
+
+COMPTE ADMIN :
+- Créer via createsuperuser
+- Accès à /admin/ pour gérer les données
+
+COMPTE CLIENT :
+- S'inscrire via /register/
+- Parcourir le catalogue
+- Ajouter des produits au panier
+- Passer une commande
+- Consulter l'historique
+
+15.4 COMMANDES UTILES
+---------------------
+
+Migrations :
+python manage.py makemigrations
+python manage.py migrate
+
+Shell Django :
+python manage.py shell
+
+Export base de données :
+python export_database.py
+
+Import Excel :
+python manage.py import_excel_products --excel-file "fichier.xlsx"
+
+15.5 DÉPANNAGE
+--------------
+
+Problème : "No module named django"
+Solution : pip install -r requirements.txt
+
+Problème : "Table doesn't exist"
+Solution : python manage.py migrate
+
+Problème : "Static files not found"
+Solution : Vérifier STATIC_URL dans settings.py
+
+Problème : "CSRF verification failed"
+Solution : Utiliser {% csrf_token %} dans les formulaires
+
+================================================================================
+CONCLUSION
+================================================================================
+
+Le projet PGI Nordik Adventures est un système e-commerce complet et fonctionnel 
+qui répond à toutes les exigences du TP#3. Il démontre :
+
+- L'intégration réussie des trois modules (Stocks, Finances, Clients)
+- L'implémentation de toutes les règles d'affaires du TP#2
+- Une interface utilisateur moderne et intuitive
+- Une architecture modulaire et maintenable
+- Des processus automatisés via les signaux Django
+- Une base de données cohérente et normalisée
+
+Le système est prêt pour la démonstration et la soumission.
+
+================================================================================
+FIN DU DOCUMENT
+================================================================================
+

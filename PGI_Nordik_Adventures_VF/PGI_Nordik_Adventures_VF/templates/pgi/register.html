@@ -1,0 +1,329 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription - PGI Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root{
+      --primary:#0066cc;
+      --accent:#4cc9f0;
+      --dark:#0f172a;
+      --bg:#0b1120;
+      --card:#020617;
+      --radius:12px;
+      --shadow:0 18px 45px rgba(15,23,42,0.8);
+      --transition:all .3s ease;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins","Inter",sans-serif;}
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,#1d4ed8 0,#0b1120 40%,#020617 100%);
+      color:#e5e7eb;
+      padding: 20px;
+    }
+    .container{
+      width:100%;
+      max-width:980px;
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(15,23,42,.9));
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      border:1px solid rgba(148,163,184,.2);
+    }
+    .hero{
+      position:relative;
+      padding:34px 34px 32px;
+      background:radial-gradient(circle at 0 0,#1d4ed8 0,transparent 55%),
+                 radial-gradient(circle at 100% 100%,#22c55e 0,transparent 45%),
+                 #020617;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      color:#e5e7eb;
+    }
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .logo i{
+      font-size:28px;
+      color:#38bdf8;
+      filter:drop-shadow(0 0 12px rgba(56,189,248,.7));
+    }
+    .logo h1{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    .logo span{color:#38bdf8;}
+    .hero h2{
+      margin-top:40px;
+      font-size:26px;
+      font-weight:700;
+    }
+    .hero p{
+      margin-top:10px;
+      font-size:14px;
+      color:#cbd5f5;
+      max-width:340px;
+    }
+    .hero-highlight{
+      display:flex;
+      gap:10px;
+      margin-top:22px;
+      font-size:13px;
+      color:#e5e7eb;
+    }
+    .hero-highlight i{
+      color:#22c55e;
+      margin-top:3px;
+    }
+    .register-panel{
+      padding:32px 32px 30px;
+      background:rgba(15,23,42,.95);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      overflow-y: auto;
+    }
+    .register-header{
+      margin-bottom:22px;
+    }
+    .register-header h2{
+      font-size:20px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .register-header p{
+      font-size:13px;
+      color:#9ca3af;
+    }
+    form{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    label{
+      font-size:12px;
+      font-weight:500;
+      color:#cbd5e1;
+      margin-bottom:4px;
+      display:block;
+    }
+    .field{
+      background:rgba(15,23,42,.95);
+      border-radius:var(--radius);
+      border:1px solid rgba(148,163,184,.4);
+      padding:9px 11px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      transition:var(--transition);
+    }
+    .field:focus-within{
+      border-color:#38bdf8;
+      box-shadow:0 0 0 1px rgba(56,189,248,.5);
+    }
+    .field i{
+      color:#64748b;
+      font-size:14px;
+    }
+    .field input{
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#e5e7eb;
+      font-size:13px;
+      width:100%;
+    }
+    .field input::placeholder{color:#64748b;}
+    .btn{
+      margin-top:6px;
+      padding:10px 14px;
+      border:none;
+      border-radius:999px;
+      background:linear-gradient(135deg,#2563eb,#0ea5e9);
+      color:white;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      box-shadow:0 12px 30px rgba(37,99,235,.55);
+      transition:var(--transition);
+    }
+    .btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 16px 40px rgba(37,99,235,.75);
+    }
+    .btn i{font-size:14px;}
+    .error{
+      margin-top:8px;
+      font-size:12px;
+      color:#f97373;
+      display:none;
+    }
+    .error.visible{display:block;}
+    .success{
+      margin-top:8px;
+      font-size:12px;
+      color:#4ade80;
+      display:none;
+    }
+    .success.visible{display:block;}
+    .login-link{
+      margin-top:14px;
+      text-align:center;
+      font-size:12px;
+      color:#9ca3af;
+    }
+    .login-link a{
+      color:#38bdf8;
+      text-decoration:none;
+      font-weight:500;
+    }
+    .login-link a:hover{text-decoration:underline;}
+    @media (max-width:900px){
+      .container{
+        max-width:520px;
+        grid-template-columns:1fr;
+      }
+      .hero{display:none;}
+    }
+    @media (max-width:520px){
+      body{padding:12px;}
+      .register-panel{padding:24px 20px;}
+    }
+    .messages {
+      margin-bottom: 20px;
+    }
+    .messages .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f97373;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .messages .success {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: #4ade80;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div>
+        <div class="logo">
+          <i class="fa-solid fa-mountain-sun"></i>
+          <h1>Nordik<span>Adventures</span></h1>
+        </div>
+        <h2>Créer un compte<br />Nordik Adventures</h2>
+        <p>Rejoignez notre communauté et accédez à notre catalogue d'équipements outdoor de qualité.</p>
+        <div class="hero-highlight">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <strong>Inscription sécurisée</strong><br />
+            <span>Vos données sont protégées et utilisées uniquement pour vos commandes.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="register-panel">
+      <div class="register-header">
+        <h2>Créer un compte</h2>
+        <p>Remplissez le formulaire ci-dessous pour vous inscrire.</p>
+      </div>
+
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'pgi:register' %}">
+        {% csrf_token %}
+        
+        <div>
+          <label for="name">Nom complet</label>
+          <div class="field">
+            <i class="fa-solid fa-user"></i>
+            <input id="name" name="name" type="text" placeholder="Ex. Jean Dupont" required />
+          </div>
+        </div>
+
+        <div>
+          <label for="email">Adresse courriel</label>
+          <div class="field">
+            <i class="fa-solid fa-envelope"></i>
+            <input id="email" name="email" type="email" placeholder="ex. jean@example.com" required />
+          </div>
+        </div>
+
+        <div>
+          <label for="phone">Téléphone (optionnel)</label>
+          <div class="field">
+            <i class="fa-solid fa-phone"></i>
+            <input id="phone" name="phone" type="tel" placeholder="Ex. 514-123-4567" />
+          </div>
+        </div>
+
+        <div>
+          <label for="address">Adresse (optionnel)</label>
+          <div class="field">
+            <i class="fa-solid fa-location-dot"></i>
+            <input id="address" name="address" type="text" placeholder="Ex. 123 rue Example, Montréal" />
+          </div>
+        </div>
+
+        <div>
+          <label for="password">Mot de passe</label>
+          <div class="field">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" name="password" type="password" placeholder="Minimum 6 caractères" minlength="6" required />
+          </div>
+        </div>
+
+        <div>
+          <label for="password_confirm">Confirmer le mot de passe</label>
+          <div class="field">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password_confirm" name="password_confirm" type="password" placeholder="Répétez le mot de passe" minlength="6" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn">
+          <i class="fa-solid fa-user-plus"></i>
+          Créer mon compte
+        </button>
+
+        <div class="login-link">
+          Vous avez déjà un compte ? <a href="{% url 'pgi:login' %}">Se connecter</a>
+        </div>
+      </form>
+    </section>
+  </div>
+</body>
+</html>
+

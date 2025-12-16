@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Achats &amp; dépenses - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}" class="active"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'pgi:logout' %}" class="logout-btn">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-cart-flatbed"></i>
+        </div>
+        <div>
+          <h2>Achats &amp; dépenses</h2>
+          <p>Vue détaillée des commandes fournisseurs, réceptions et charges.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'pgi:finances' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Retour au tableau financier
+        </a>
+        <a href="{% url 'finances:expense_create' %}" class="add-btn">
+          <i class="fa-solid fa-cart-shopping"></i> Nouvel achat
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-table compact">
+      <div class="table-container" id="blocAchats">
+        <div class="table-header">
+          <span>#</span>
+          <span>Fournisseur</span>
+          <span>Type</span>
+          <span>Montant</span>
+          <span>Date</span>
+          <span>Statut</span>
+        </div>
+        {% if expenses %}
+          {% for exp in expenses %}
+            <div class="table-row">
+              <span>A-{{ exp.id }}</span>
+              <span>{{ exp.supplier_name }}</span>
+              <span>{{ exp.get_expense_type_display }}</span>
+              <span>{{ exp.amount }} $</span>
+              <span>{{ exp.expense_date|date:"d/m/Y" }}</span>
+              <span>
+                <span class="status
+                  {% if exp.status == exp.STATUS_PAID %}ok
+                  {% elif exp.status == exp.STATUS_PENDING %}warning
+                  {% else %}critical
+                  {% endif %}">
+                  {{ exp.get_status_display }}
+                </span>
+              </span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="table-row">
+            <span colspan="6">Aucun achat enregistré pour l’instant. Ils seront lus depuis la BDD.</span>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+
+

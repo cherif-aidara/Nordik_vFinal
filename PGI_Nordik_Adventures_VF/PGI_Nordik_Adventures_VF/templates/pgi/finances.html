@@ -1,0 +1,1212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centre financier - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    /* ===== LAYOUT SPÉCIFIQUE AU MODULE FINANCE (NOUVEAU DESIGN) ===== */
+    .finance-main {
+      display: flex;
+    }
+    .finance-main .main {
+      width: 100%;
+      padding-top: 0;
+    }
+    .finance-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 10px 0;
+      border-radius: 0;
+      background: transparent;
+      color: #0f172a;
+      box-shadow: none;
+      margin: 0 0 10px 0;
+      gap: 16px;
+      border-bottom: 1px solid #e5e7eb;
+      width: 100%;
+    }
+    .finance-hero .hero-main {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      max-width: 100%;
+    }
+    .finance-hero .hero-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 22px;
+      background: radial-gradient(circle at 20% 0, #38bdf8 0%, #0ea5e9 35%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 26px rgba(56, 189, 248, 0.55);
+      flex-shrink: 0;
+    }
+    .finance-hero .hero-icon i {
+      font-size: 28px;
+      color: #0b1120;
+    }
+    .finance-hero h1 {
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+    .finance-hero p {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+    .finance-hero .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      margin-bottom: 6px;
+    }
+    .finance-hero .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .finance-hero .hero-tags span {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #1f2937;
+    }
+    .finance-hero .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-width: 520px;
+      justify-content: flex-end;
+    }
+    .finance-hero .hero-actions .add-btn {
+      flex: 1 1 48%;
+      justify-content: center;
+    }
+    .finance-hero .hero-actions button {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #2563eb;
+      color: #f9fafb;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.5);
+    }
+    .finance-hero .hero-actions button i {
+      font-size: 0.85rem;
+    }
+    .finance-hero .hero-snapshot {
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      min-width: 260px;
+    }
+    .hero-snapshot p {
+      font-size: 0.8rem;
+      margin-bottom: 2px;
+      opacity: 0.9;
+    }
+    .hero-snapshot h2 {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+    .hero-snapshot .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      color: #022c22;
+    }
+
+    .finance-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 16px;
+    }
+    .finance-toolbar .searchbar {
+      flex: 1;
+    }
+    .finance-toolbar .searchbar input {
+      width: 100%;
+    }
+    .finance-toolbar .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .finance-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(260px, 0.9fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .finance-main-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .pill-tabs {
+      display: inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      align-self: flex-start;
+      margin-bottom: 4px;
+    }
+    .pill-tabs button {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pill-tabs button i {
+      font-size: 0.85rem;
+    }
+    .pill-tabs button.active {
+      background: white;
+      color: #0f172a;
+      box-shadow: 0 4px 10px rgba(148, 163, 184, 0.45);
+    }
+
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mini-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .mini-kpis .card {
+      padding: 12px 14px;
+      border-radius: 14px;
+    }
+    .mini-kpis .card i {
+      width: 30px;
+      height: 30px;
+      font-size: 0.9rem;
+    }
+    .mini-kpis .card h3 {
+      font-size: 1.1rem;
+    }
+    .mini-kpis .card p {
+      font-size: 0.78rem;
+    }
+
+    .finance-modules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .finance-link-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: 0 12px 20px rgba(15, 23, 42, 0.10);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.16s ease-out, box-shadow 0.16s ease-out, border-color 0.16s;
+    }
+    .finance-link-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 26px rgba(15, 23, 42, 0.14);
+      border-color: #2563eb;
+    }
+    .finance-link-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .finance-link-card-header h3 {
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    .finance-link-card-header span {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .finance-link-card p {
+      font-size: 0.78rem;
+      color: #4b5563;
+      margin: 0;
+    }
+    .finance-link-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      margin-top: 4px;
+      color: #1d4ed8;
+    }
+    .finance-link-card-footer i {
+      font-size: 0.8rem;
+    }
+
+    .chart-compact {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 16px 18px;
+      box-shadow: 0 12px 20px rgba(15, 23, 42, 0.12);
+      margin-bottom: 6px;
+    }
+    .chart-compact h2 {
+      font-size: 0.96rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-placeholder {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .panel-section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #111827;
+    }
+    .panel-section-title i {
+      color: #0ea5e9;
+    }
+
+    .modern-table.compact .table-header span,
+    .modern-table.compact .table-row span {
+      font-size: 0.8rem;
+    }
+    .modern-table.compact .table-header {
+      padding: 8px 10px;
+    }
+    .modern-table.compact .table-row {
+      padding: 7px 10px;
+    }
+
+    .finance-side-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .finance-side-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.16);
+    }
+    .finance-side-card h3 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .finance-side-card h3 span.badge-blue {
+      font-size: 0.7rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .finance-side-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+    .finance-side-card ul li {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+    .finance-side-card ul li span.label {
+      color: #4b5563;
+    }
+    .finance-side-card ul li span.value {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .finance-side-card .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .finance-side-card .quick-actions button {
+      width: 100%;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .side-cash-label {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .side-cash-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .etat-financier {
+      margin-top: 18px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 14px 26px rgba(15, 23, 42, 0.16);
+    }
+    .etat-financier h2 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .etat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      font-size: 0.8rem;
+    }
+    .etat-block {
+      background: #f9fafb;
+      border-radius: 14px;
+      padding: 10px 10px 8px;
+    }
+    .etat-block h4 {
+      font-size: 0.78rem;
+      margin-bottom: 4px;
+      color: #4b5563;
+    }
+    .etat-block p {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+
+    .etat-block.profit {
+      background: #ecfdf5;
+      border: 1px solid #34d399;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 4px;
+    }
+    .status-dot.ok { background: #22c55e; }
+    .status-dot.warning { background: #f97316; }
+    .status-dot.critical { background: #ef4444; }
+
+    /* MODALES FINANCIÈRES (facture / achat) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      background: #0f172a;
+      color: #e5e7eb;
+      border-radius: 20px;
+      padding: 18px 20px;
+      width: min(720px, 96%);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.8);
+    }
+    .modal h3 {
+      margin: 0 0 12px 0;
+      font-size: 1rem;
+    }
+    .modal form {
+      display: grid;
+      grid-template-columns: 2fr 1.3fr 1.3fr 1.1fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .modal input,
+    .modal select {
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .modal button[type="submit"] {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      background: #2563eb;
+      color: #f9fafb;
+      cursor: pointer;
+      box-shadow: 0 12px 22px rgba(37, 99, 235, 0.65);
+      white-space: nowrap;
+    }
+    .modal button[type="submit"]:hover {
+      background: #1d4ed8;
+    }
+
+    /* Timeline trésorerie : style plus moderne, cohérent avec le bleu */
+    .modern-timeline .timeline-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .modern-timeline .timeline-item {
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 14px 26px rgba(15, 23, 42, 0.12);
+      border-left: 4px solid #1d4ed8;
+      padding: 10px 12px;
+    }
+    .modern-timeline .timeline-item.ok {
+      border-left-color: #22c55e;
+    }
+    .modern-timeline .timeline-item.warning {
+      border-left-color: #1d4ed8;
+    }
+    .modern-timeline .timeline-item i {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-size: 0.9rem;
+      color: #0b1120;
+      background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+    }
+    .modern-timeline .timeline-item.ok i {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+    .modern-timeline .timeline-item .card-content h3 {
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+    .modern-timeline .timeline-item .card-content p {
+      font-size: 0.8rem;
+      margin-bottom: 0;
+      color: #4b5563;
+    }
+
+    @media (max-width: 1100px) {
+      .finance-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .finance-hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .finance-hero .hero-main {
+        max-width: 100%;
+      }
+      .finance-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .finance-toolbar .actions {
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}" class="active"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'pgi:logout' %}" class="logout-btn">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN WRAPPER ===== -->
+  <div class="main finance-main">
+    <main class="main">
+      <!-- HERO FINANCIER, EN RECTANGLE DANS LA PARTIE BLANCHE -->
+      <section class="finance-hero">
+        <div class="hero-main">
+          <div class="hero-icon">
+            <i class="fa-solid fa-coins"></i>
+          </div>
+          <div>
+            <span class="hero-chip">
+              <i class="fa-solid fa-layer-group"></i>
+              Module Finances · PGI Nordik
+            </span>
+            <h1>Tableau de bord financier Nordik</h1>
+            <p>Vue consolidée des ventes, achats, taxes et flux de trésorerie de Nordik Adventures.</p>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <a href="{% url 'finances:invoice_create' %}" class="add-btn">
+            <i class="fa-solid fa-file-circle-plus"></i>
+            Nouvelle facture
+          </a>
+          <a href="{% url 'finances:expense_create' %}" class="add-btn">
+            <i class="fa-solid fa-cart-shopping"></i>
+            Nouvel achat
+          </a>
+          <a href="{% url 'finances:export_invoices_csv' %}" class="add-btn">
+            <i class="fa-solid fa-file-circle-plus"></i>
+            Ventes CSV
+          </a>
+          <a href="{% url 'finances:export_monthly_report_csv' %}" class="add-btn">
+            <i class="fa-solid fa-file-export"></i>
+            Rapport mensuel
+          </a>
+        </div>
+      </section>
+
+      <!-- BARRE D’OUTILS -->
+      <section class="finance-toolbar">
+        <div class="searchbar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchFinance" placeholder="Rechercher une facture, un client, un fournisseur..." />
+        </div>
+      </section>
+
+      <!-- LAYOUT EN DEUX COLONNES : PANNEAUX / ALERTES -->
+      <section class="finance-layout">
+        <!-- COLONNE PRINCIPALE -->
+        <div class="finance-main-column">
+          <!-- BLOC SYNTHÈSE -->
+          <div>
+            <div class="mini-kpis">
+              <div class="card">
+                <i class="fa-solid fa-sack-dollar"></i>
+                <div class="card-content">
+                  <p>CA potentiel (TTC)</p>
+                  <h3 id="kpiRevenusMini">{{ potential_revenue_ttc|default:0|floatformat:2 }} $</h3>
+                  <span class="trend neutral">Inventaire vendu à prix catalogue, avec taxes</span>
+                </div>
+              </div>
+              <div class="card">
+                <i class="fa-solid fa-money-bill-wave"></i>
+                <div class="card-content">
+                  <p>Valeur du stock (actif)</p>
+                  <h3 id="kpiDepensesMini">{{ total_stock_value|default:0|floatformat:2 }} $</h3>
+                  <span class="trend neutral">Coût d’achat actuel de l’inventaire</span>
+                </div>
+              </div>
+              <div class="card">
+                <i class="fa-solid fa-scale-balanced"></i>
+                <div class="card-content">
+                  <p>Profit net</p>
+                  <h3 id="kpiProfitMini">{{ potential_profit|default:0|floatformat:2 }} $</h3>
+                  <span class="trend neutral">Marge potentielle (CA − coût de stock)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-compact">
+              <h2><i class="fa-solid fa-chart-line"></i> Flux de trésorerie mensuel</h2>
+              <div id="placeholderFlux" class="chart-placeholder">Chargement du graphique de trésorerie...</div>
+              <canvas id="chartFinanceFlux" height="80"></canvas>
+            </div>
+          </div>
+
+          <!-- LIENS VERS LES PAGES DÉTAILLÉES POUR ALLÉGER CETTE PAGE -->
+          <section class="finance-modules">
+            <a href="{% url 'finances:finances_factures' %}" class="finance-link-card">
+              <div class="finance-link-card-header">
+                <h3><i class="fa-solid fa-file-invoice"></i> Factures clients</h3>
+                <span>Vue détaillée</span>
+              </div>
+              <p>Liste complète des ventes, montants TTC, taxes et statuts de paiement.</p>
+              <div class="finance-link-card-footer">
+                <span>Accéder au journal de facturation</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </a>
+            <a href="{% url 'finances:finances_achats' %}" class="finance-link-card">
+              <div class="finance-link-card-header">
+                <h3><i class="fa-solid fa-cart-flatbed"></i> Achats &amp; dépenses</h3>
+                <span>Vue détaillée</span>
+              </div>
+              <p>Suivi des commandes fournisseurs, réceptions et dépenses d’exploitation.</p>
+              <div class="finance-link-card-footer">
+                <span>Accéder au journal des achats</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </a>
+            <a href="{% url 'finances:finances_tresorerie' %}" class="finance-link-card">
+              <div class="finance-link-card-header">
+                <h3><i class="fa-solid fa-money-bill-transfer"></i> Trésorerie &amp; flux</h3>
+                <span>Vue détaillée</span>
+              </div>
+              <p>Chronologie des encaissements et décaissements pour analyser le cash-flow.</p>
+              <div class="finance-link-card-footer">
+                <span>Voir les mouvements de trésorerie</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </a>
+          </section>
+
+          <!-- MINI ÉTAT FINANCIER GLOBAL -->
+          <section class="etat-financier">
+            <h2><i class="fa-solid fa-scale-unbalanced"></i> Mini état des résultats (PGI)</h2>
+            <div class="etat-grid">
+              <div class="etat-block">
+                <h4>Revenus bruts</h4>
+                <p id="etatRevenus">{{ potential_revenue|default:0|floatformat:2 }} $</p>
+                <small>Ventes avant taxes</small>
+              </div>
+              <div class="etat-block">
+                <h4>Coûts &amp; dépenses</h4>
+                <p id="etatDepenses">{{ total_stock_value|default:0|floatformat:2 }} $</p>
+                <small>Achats + charges</small>
+              </div>
+              <div class="etat-block profit">
+                <h4>Profit net</h4>
+                <p id="etatProfit">{{ potential_profit|default:0|floatformat:2 }} $</p>
+                <small>Revenus − dépenses</small>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- COLONNE LATÉRALE : ALERTES & RAPPORTS -->
+        <aside class="finance-side-column">
+          <div class="finance-side-card">
+            <h3>
+              Solde de trésorerie
+              <span class="badge-blue">Estimation</span>
+            </h3>
+            <p class="side-cash-label">Calculé à partir des ventes et achats réellement enregistrés</p>
+            <p class="side-cash-value" id="sideCash">{{ net_balance|default:0|floatformat:2 }} $</p>
+            <small>Solde net : factures payées moins dépenses payées.</small>
+          </div>
+
+          <div class="finance-side-card" id="cardAlertes">
+            <h3>
+              Alertes financières
+              <span class="badge-blue" id="badgeAlertes">0 actives</span>
+            </h3>
+            <ul id="listeAlertes"></ul>
+          </div>
+
+          <div class="finance-side-card">
+            <h3>
+              Répartition du CA
+              <span class="badge-blue">Par ligne d’affaires</span>
+            </h3>
+            <div id="placeholderRep" class="chart-placeholder">Chargement de la répartition du chiffre d’affaires...</div>
+            <canvas id="chartFinanceRep" height="140"></canvas>
+          </div>
+
+        </aside>
+      </section>
+
+      <div class="footer">
+        © 2025 Nordik Adventures — Module Finances &amp; Facturation du PGI
+      </div>
+    </main>
+  </div>
+
+  <!-- Données agrégées côté serveur pour les graphiques financiers -->
+  <div id="finance-data"
+       data-month-labels="{% for lbl in finance_month_labels %}{{ lbl }}{% if not forloop.last %},{% endif %}{% endfor %}"
+       data-month-revenues="{% for v in finance_month_revenues %}{{ v|floatformat:2 }}{% if not forloop.last %},{% endif %}{% endfor %}"
+       data-month-costs="{% for v in finance_month_costs %}{{ v|floatformat:2 }}{% if not forloop.last %},{% endif %}{% endfor %}"
+       data-cat-labels="{% for lbl in finance_cat_labels %}{{ lbl }}{% if not forloop.last %},{% endif %}{% endfor %}"
+       data-cat-values="{% for v in finance_cat_values %}{{ v|floatformat:2 }}{% if not forloop.last %},{% endif %}{% endfor %}">
+  </div>
+
+  {{ invoice_summaries|json_script:"invoices-json" }}
+  {{ expense_summaries|json_script:"expenses-json" }}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const TPS = 0.05;
+    const TVQ = 0.09975;
+
+    // Bases calculées côté serveur à partir de la BDD produits
+    const BASE_REVENUS_HT = parseFloat("{{ potential_revenue|default:0|floatformat:2 }}".replace(",", ".")) || 0;
+    const BASE_REVENUS_TTC = parseFloat("{{ potential_revenue_ttc|default:0|floatformat:2 }}".replace(",", ".")) || 0;
+    const BASE_DEPENSES = parseFloat("{{ total_stock_value|default:0|floatformat:2 }}".replace(",", ".")) || 0;
+    const BASE_PROFIT = parseFloat("{{ potential_profit|default:0|floatformat:2 }}".replace(",", ".")) || 0;
+
+    const financeDataEl = document.getElementById("finance-data");
+    let FIN_MONTH_LABELS = [];
+    let FIN_MONTH_REVENUES = [];
+    let FIN_MONTH_COSTS = [];
+    let FIN_CAT_LABELS = [];
+    let FIN_CAT_VALUES = [];
+
+    if (financeDataEl) {
+      const dl = financeDataEl.dataset.monthLabels || "";
+      const dr = financeDataEl.dataset.monthRevenues || "";
+      const dc = financeDataEl.dataset.monthCosts || "";
+      const cl = financeDataEl.dataset.catLabels || "";
+      const cv = financeDataEl.dataset.catValues || "";
+
+      FIN_MONTH_LABELS = dl ? dl.split(",").filter(Boolean) : [];
+      FIN_MONTH_REVENUES = dr ? dr.split(",").map(v => parseFloat(v) || 0) : [];
+      FIN_MONTH_COSTS = dc ? dc.split(",").map(v => parseFloat(v) || 0) : [];
+      FIN_CAT_LABELS = cl ? cl.split(",").filter(Boolean) : [];
+      FIN_CAT_VALUES = cv ? cv.split(",").map(v => parseFloat(v) || 0) : [];
+    }
+
+    // Données issues directement de la BDD (passées par le contexte Django)
+    const rawInvoices = document.getElementById("invoices-json");
+    const rawExpenses = document.getElementById("expenses-json");
+
+    let factures = [];
+    let achats = [];
+
+    if (rawInvoices) {
+      try {
+        const invData = JSON.parse(rawInvoices.textContent);
+        factures = invData.map(inv => ({
+          id: inv.id,
+          client: inv.client_name || "",
+          sousTotal: parseFloat(inv.amount || 0),
+          date: inv.invoice_date || "",
+          statut: inv.status || "en_attente",
+        }));
+      } catch (e) {
+        console.error("Erreur de parsing des factures JSON", e);
+      }
+    }
+
+    if (rawExpenses) {
+      try {
+        const expData = JSON.parse(rawExpenses.textContent);
+        achats = expData.map(exp => ({
+          id: exp.id,
+          fournisseur: exp.supplier_name || "",
+          type: exp.expense_type_display || exp.expense_type || "",
+          montant: parseFloat(exp.amount || 0),
+          date: exp.expense_date || "",
+          statut: exp.status || "payée",
+        }));
+      } catch (e) {
+        console.error("Erreur de parsing des dépenses JSON", e);
+      }
+    }
+
+    function calculerTaxes(sousTotal) {
+      const tps = sousTotal * TPS;
+      const tvq = sousTotal * TVQ;
+      const total = sousTotal + tps + tvq;
+      return { tps, tvq, total };
+    }
+
+    function etatClasse(statut) {
+      if (statut === "payée") return "ok";
+      if (statut === "en_attente") return "warning";
+      return "critical";
+    }
+
+    function majBlocFactures() {
+      const bloc = document.getElementById("blocFactures");
+      if (!bloc) return;
+      bloc.querySelectorAll(".table-row").forEach(n => n.remove());
+
+      factures.forEach(f => {
+        const { tps, tvq, total } = calculerTaxes(f.sousTotal);
+        const row = document.createElement("div");
+        row.className = "table-row";
+        row.dataset.search = `${f.id} ${f.client} ${f.date} ${f.statut}`;
+        row.innerHTML = `
+          <span>F-${f.id}</span>
+          <span>${f.client}</span>
+          <span>${f.sousTotal.toFixed(2)} $</span>
+          <span>${(tps + tvq).toFixed(2)} $</span>
+          <span>${total.toFixed(2)} $</span>
+          <span>${f.date}</span>
+          <span><span class="status ${etatClasse(f.statut)}"><span class="status-dot ${etatClasse(f.statut)}"></span>${f.statut.replace("_"," ")}</span></span>`;
+        bloc.appendChild(row);
+      });
+    }
+
+    function majBlocAchats() {
+      const bloc = document.getElementById("blocAchats");
+      if (!bloc) return;
+      bloc.querySelectorAll(".table-row").forEach(n => n.remove());
+
+      achats.forEach(a => {
+        const row = document.createElement("div");
+        row.className = "table-row";
+        row.dataset.search = `${a.id} ${a.fournisseur} ${a.type} ${a.date} ${a.statut}`;
+        row.innerHTML = `
+          <span>A-${a.id}</span>
+          <span>${a.fournisseur}</span>
+          <span>${a.type}</span>
+          <span>${a.montant.toFixed(2)} $</span>
+          <span>${a.date}</span>
+          <span><span class="status ${a.statut === "payée" ? "ok" : "warning"}"><span class="status-dot ${a.statut === "payée" ? "ok" : "warning"}"></span>${a.statut.replace("_"," ")}</span></span>`;
+        bloc.appendChild(row);
+      });
+    }
+
+    function calculerAgregats() {
+      const revenusHTTransac = factures.reduce((s,f)=>s+f.sousTotal,0);
+      const revenusTaxesTransac = factures.reduce((s,f)=>{
+        const { tps, tvq } = calculerTaxes(f.sousTotal);
+        return s + tps + tvq;
+      },0);
+      const depensesTransac = achats.reduce((s,a)=>s+a.montant,0);
+
+      const revenusHT = BASE_REVENUS_HT + revenusHTTransac;
+      const revenusTaxes = revenusTaxesTransac; // les taxes ne sont calculées que sur les ventes réelles
+      const revenusTTC = BASE_REVENUS_TTC + revenusHTTransac + revenusTaxesTransac;
+      const depenses = BASE_DEPENSES + depensesTransac;
+      const profit = revenusHT - depenses;
+
+      const impayees = factures.filter(f=>f.statut!=="payée");
+      const enRetard = factures.filter(f=>f.statut==="en_retard");
+
+      return { revenusHT, revenusTaxes, revenusTTC, depenses, profit, impayees, enRetard };
+    }
+
+    function majKPI() {
+      const { revenusHT, revenusTTC, depenses, profit } = calculerAgregats();
+
+      document.getElementById("kpiRevenusMini").textContent = revenusTTC.toFixed(2) + " $";
+      document.getElementById("kpiDepensesMini").textContent = depenses.toFixed(2) + " $";
+      document.getElementById("kpiProfitMini").textContent = profit.toFixed(2) + " $";
+
+      document.getElementById("etatRevenus").textContent = revenusHT.toFixed(2) + " $";
+      document.getElementById("etatDepenses").textContent = depenses.toFixed(2) + " $";
+      document.getElementById("etatProfit").textContent = profit.toFixed(2) + " $";
+
+      const cash = (profit - depenses * 0.15);
+      const heroCash = document.getElementById("heroCash");
+      const sideCash = document.getElementById("sideCash");
+      if (heroCash) heroCash.textContent = cash.toFixed(2) + " $";
+      if (sideCash) sideCash.textContent = cash.toFixed(2) + " $";
+    }
+
+    function majAlertes() {
+      const { enRetard } = calculerAgregats();
+      const liste = document.getElementById("listeAlertes");
+      liste.innerHTML = "";
+      let count = 0;
+
+      enRetard.forEach(f => {
+        count++;
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="label">
+            <span class="status-dot critical"></span>
+            Facture F-${f.id} (${f.client})
+          </span>
+          <span class="value">${f.sousTotal.toFixed(2)} $</span>
+        `;
+        liste.appendChild(li);
+      });
+
+      if (count === 0) {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="label"><span class="status-dot ok"></span>Aucune alerte critique</span><span class="value">OK</span>`;
+        liste.appendChild(li);
+      }
+
+      document.getElementById("badgeAlertes").textContent = count + " alerte" + (count > 1 ? "s" : "");
+    }
+
+    function majTresorerie() {
+      const journal = document.getElementById("journalTresorerie");
+      if (!journal) return;
+      journal.innerHTML = "";
+
+      const evenements = [
+        ...factures.map(f => ({
+          type: "ok",
+          icone: "fa-arrow-trend-up",
+          titre: `Encaissement prévu F-${f.id}`,
+          texte: `${f.client} — +${calculerTaxes(f.sousTotal).total.toFixed(2)} $ le ${f.date}`
+        })),
+        ...achats.map(a => ({
+          type: "warning",
+          icone: "fa-arrow-trend-down",
+          titre: `Décaissement A-${a.id}`,
+          texte: `${a.fournisseur} (${a.type}) — -${a.montant.toFixed(2)} $ le ${a.date}`
+        }))
+      ].sort((a,b) => a.titre.localeCompare(b.titre));
+
+      evenements.forEach(e => {
+        const div = document.createElement("div");
+        div.className = "timeline-item " + e.type;
+        div.innerHTML = `
+          <i class="fa-solid ${e.icone}"></i>
+          <div class="card-content">
+            <h3>${e.titre}</h3>
+            <p>${e.texte}</p>
+          </div>`;
+        journal.appendChild(div);
+      });
+    }
+
+    function filtrerRecherche() {
+      const q = document.getElementById("searchFinance").value.toLowerCase();
+      ["blocFactures", "blocAchats"].forEach(id => {
+        const bloc = document.getElementById(id);
+        if (!bloc) return;
+        bloc.querySelectorAll(".table-row").forEach(row => {
+          const txt = (row.dataset.search || row.textContent).toLowerCase();
+          row.style.display = txt.includes(q) ? "" : "none";
+        });
+      });
+    }
+
+    function initChartsFinances() {
+      const ctxFlux = document.getElementById("chartFinanceFlux");
+      const ctxRep = document.getElementById("chartFinanceRep");
+      const phFlux = document.getElementById("placeholderFlux");
+      const phRep = document.getElementById("placeholderRep");
+
+      // Si Chart.js n'est pas chargé (hors ligne, problème réseau...), on affiche au moins un résumé texte.
+      if (!ctxFlux || !ctxRep || typeof Chart === "undefined") {
+        if (phFlux) {
+          phFlux.textContent =
+            "Graphique non disponible (Chart.js n’a pas pu être chargé).";
+        }
+        if (phRep) {
+          phRep.textContent =
+            "Graphique non disponible (bibliothèque de graphiques absente).";
+        }
+        return;
+      }
+
+      // 1) Flux "mensuel" basé sur l'inventaire (revenu potentiel vs coût de stock)
+      if (FIN_MONTH_LABELS.length > 0) {
+        new Chart(ctxFlux, {
+          type: "bar",
+          data: {
+            labels: FIN_MONTH_LABELS,
+            datasets: [
+              {
+                label: "CA potentiel (inventaire)",
+                data: FIN_MONTH_REVENUES,
+                backgroundColor: "rgba(59,130,246,0.85)",
+                borderRadius: 8
+              },
+              {
+                label: "Coût de stock introduit",
+                data: FIN_MONTH_COSTS,
+                backgroundColor: "rgba(148,163,184,0.8)",
+                borderRadius: 8
+              }
+            ]
+          },
+          options: {
+            plugins: { legend: { position: "bottom" } },
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+        if (phFlux) phFlux.style.display = "none";
+      } else {
+        if (phFlux) phFlux.textContent = "Aucune donnée d’inventaire disponible.";
+      }
+
+      // 2) Répartition du CA potentiel par catégorie (lignes d’affaires)
+      if (FIN_CAT_LABELS.length > 0) {
+        new Chart(ctxRep, {
+          type: "doughnut",
+          data: {
+            labels: FIN_CAT_LABELS,
+            datasets: [{
+              data: FIN_CAT_VALUES,
+              backgroundColor: ["#1d4ed8", "#0ea5e9", "#38bdf8", "#93c5fd", "#bfdbfe"],
+              borderWidth: 3
+            }]
+          },
+          options: {
+            cutout: "68%",
+            plugins: { legend: { position: "bottom" } }
+          }
+        });
+        if (phRep) phRep.style.display = "none";
+      } else {
+        if (phRep) phRep.textContent = "Aucune catégorie de produit trouvée.";
+      }
+    }
+
+    function ouvrirModal(type){
+      const modal=document.createElement("div");
+      modal.className="modal-overlay";
+      modal.innerHTML=`
+        <div class="modal">
+          <h3>${type==="facture"?"Nouvelle facture client":"Nouvel achat fournisseur"}</h3>
+          <form onsubmit="enregistrerTransaction(event,'${type}')">
+            <input required placeholder="${type==="facture"?"Nom du client":"Nom du fournisseur"}" id="nomTx">
+            <input required type="number" step="0.01" placeholder="Montant HT $" id="montantTx">
+            <input required type="date" id="dateTx">
+            ${type==="depense"
+              ? '<input placeholder="Type (Stock, Énergie, etc.)" id="typeTx" value="Stock">'
+              : ''}
+            <select id="statutTx">
+              <option value="payée">Payée</option>
+              <option value="en_attente">En attente</option>
+              <option value="en_retard">En retard</option>
+            </select>
+            <button type="submit">Enregistrer (maquette)</button>
+          </form>
+        </div>`;
+      document.body.appendChild(modal);
+    }
+
+    function enregistrerTransaction(e,type){
+      e.preventDefault();
+      const nom=document.getElementById("nomTx").value;
+      const montant=parseFloat(document.getElementById("montantTx").value);
+      const date=document.getElementById("dateTx").value;
+      const statut=document.getElementById("statutTx").value;
+      if(type==="facture"){
+        factures.push({id:1000+factures.length+1,client:nom,sousTotal:montant,date,statut});
+        majBlocFactures();
+      }else{
+        const typeTx=document.getElementById("typeTx").value || "Autre";
+        achats.push({id:2000+achats.length+1,fournisseur:nom,montant, type:typeTx,date,statut});
+        majBlocAchats();
+      }
+      majKPI();
+      majAlertes();
+      majTresorerie();
+      document.querySelector(".modal-overlay").remove();
+    }
+
+    function telechargerFichierCSV(nom, contenu) {
+      const blob = new Blob([contenu], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nom;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function telechargerModele(type) {
+      if (type === "vente") {
+        let csv = "NumeroFacture,Date,Client,SousTotal,TPS,TVQ,TotalTTC,Statut\n";
+        factures.forEach(f => {
+          const { tps, tvq, total } = calculerTaxes(f.sousTotal);
+          csv += `F-${f.id},${f.date},"${f.client}",${f.sousTotal.toFixed(2)},${tps.toFixed(2)},${tvq.toFixed(2)},${total.toFixed(2)},${f.statut}\n`;
+        });
+        telechargerFichierCSV("modele_factures_nordik.csv", csv);
+      } else if (type === "achat") {
+        let csv = "NumeroAchat,Date,Fournisseur,Type,Montant,Statut\n";
+        achats.forEach(a => {
+          csv += `A-${a.id},${a.date},"${a.fournisseur}",${a.type},${a.montant.toFixed(2)},${a.statut}\n`;
+        });
+        telechargerFichierCSV("modele_achats_nordik.csv", csv);
+      } else if (type === "rapport") {
+        const { revenusHT, revenusTaxes, revenusTTC, depenses, profit } = calculerAgregats();
+        let csv = "Indicateur,Valeur\n";
+        csv += `Revenus HT,${revenusHT.toFixed(2)}\n`;
+        csv += `Taxes perçues (TPS+TVQ),${revenusTaxes.toFixed(2)}\n`;
+        csv += `Revenus TTC,${revenusTTC.toFixed(2)}\n`;
+        csv += `Dépenses,${depenses.toFixed(2)}\n`;
+        csv += `Profit net,${profit.toFixed(2)}\n`;
+        telechargerFichierCSV("rapport_financier_mensuel_nordik.csv", csv);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      majBlocFactures();
+      majBlocAchats();
+      majKPI();
+      majAlertes();
+      majTresorerie();
+      initChartsFinances();
+
+      const search = document.getElementById("searchFinance");
+      if (search) search.addEventListener("input", filtrerRecherche);
+    });
+  </script>
+</body>
+</html>
+
+

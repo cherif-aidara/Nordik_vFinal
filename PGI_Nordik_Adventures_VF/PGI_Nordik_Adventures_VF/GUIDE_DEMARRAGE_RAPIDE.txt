@@ -1,0 +1,269 @@
+================================================================================
+GUIDE DE DÉMARRAGE RAPIDE - PGI NORDIK ADVENTURES
+================================================================================
+
+Comment lancer et tester l'application
+
+================================================================================
+ÉTAPE 1 : VÉRIFIER LES PRÉREQUIS
+================================================================================
+
+1. Python installé (3.8 ou supérieur)
+   Vérifier : python --version
+   ✅ Vous avez Python 3.12.6
+
+2. Django installé
+   Vérifier : python -c "import django; print(django.get_version())"
+   ✅ Vous avez Django 5.1.6
+
+3. Dépendances installées
+   Si nécessaire : pip install -r requirements.txt
+
+================================================================================
+ÉTAPE 2 : PRÉPARER LA BASE DE DONNÉES
+================================================================================
+
+1. Créer les migrations (si nécessaire) :
+   python manage.py makemigrations
+
+2. Appliquer les migrations :
+   python manage.py migrate
+
+   ✅ Les migrations sont déjà appliquées
+
+================================================================================
+ÉTAPE 3 : CRÉER UN SUPERUTILISATEUR (OPTIONNEL)
+================================================================================
+
+Pour accéder à l'interface d'administration :
+
+Option A - Commande interactive :
+   python manage.py createsuperuser
+   Suivez les instructions à l'écran
+
+Option B - Script automatique :
+   python create_admin.py
+   Crée : admin / admin@nordik.local / Azerty123!
+
+================================================================================
+ÉTAPE 4 : IMPORTER DES DONNÉES DE TEST (OPTIONNEL)
+================================================================================
+
+Pour avoir des produits dans le catalogue :
+
+1. Import depuis Excel (si vous avez le fichier) :
+   python manage.py import_excel_products --excel-file "../../NordikAdventures - Liste des produits PGI (1).xlsx"
+
+2. OU import de produits de démonstration :
+   python manage.py import_demo_stock
+
+================================================================================
+ÉTAPE 5 : LANCER LE SERVEUR
+================================================================================
+
+MÉTHODE 1 - Script automatique (RECOMMANDÉ) :
+   python start_server.py
+
+   Ce script :
+   - Vérifie les migrations
+   - Applique les migrations si nécessaire
+   - Lance le serveur automatiquement
+
+MÉTHODE 2 - Commande Django directe :
+   python manage.py runserver
+
+   Le serveur démarre sur : http://127.0.0.1:8000/
+
+================================================================================
+ÉTAPE 6 : ACCÉDER À L'APPLICATION
+================================================================================
+
+Une fois le serveur lancé, ouvrez votre navigateur :
+
+1. PAGE D'ACCUEIL / TABLEAU DE BORD :
+   http://127.0.0.1:8000/
+   
+   Affiche le tableau de bord général avec statistiques
+
+2. CATALOGUE PRODUITS (PUBLIC) :
+   http://127.0.0.1:8000/stocks/catalogue/
+   
+   Catalogue accessible sans connexion
+
+3. INSCRIPTION :
+   http://127.0.0.1:8000/register/
+   
+   Créez un compte client pour tester les fonctionnalités
+
+4. CONNEXION :
+   http://127.0.0.1:8000/login/
+   
+   Connectez-vous avec votre compte
+
+5. INTERFACE D'ADMINISTRATION :
+   http://127.0.0.1:8000/admin/
+   
+   Nécessite un superutilisateur (créé à l'étape 3)
+
+================================================================================
+ÉTAPE 7 : TESTER LES FONCTIONNALITÉS
+================================================================================
+
+PARCOURS CLIENT COMPLET :
+
+1. S'inscrire :
+   - Aller sur /register/
+   - Remplir le formulaire
+   - Vous serez automatiquement connecté
+
+2. Parcourir le catalogue :
+   - Aller sur /stocks/catalogue/
+   - Rechercher des produits
+   - Filtrer par catégorie
+   - Cliquer sur un produit pour voir les détails
+
+3. Ajouter au panier :
+   - Sur une fiche produit, cliquer "Ajouter au panier"
+   - Le produit est ajouté automatiquement
+
+4. Gérer le panier :
+   - Aller sur /clients/panier/
+   - Modifier les quantités
+   - Retirer des articles
+   - Vérifier les calculs (sous-total, TPS, TVQ, total)
+
+5. Passer une commande :
+   - Cliquer "Passer la commande"
+   - La commande est créée
+   - Une facture est générée automatiquement
+   - Le stock est diminué automatiquement
+
+6. Voir mes commandes :
+   - Aller sur /clients/mes-commandes/
+   - Voir l'historique
+   - Accéder aux factures
+   - Évaluer les commandes complétées
+
+PARCOURS ADMINISTRATEUR :
+
+1. Se connecter avec un compte admin :
+   - Aller sur /admin/
+   - Utiliser les identifiants du superutilisateur
+
+2. Gérer les produits :
+   - Ajouter, modifier, désactiver des produits
+   - Voir les alertes de réapprovisionnement
+
+3. Gérer les commandes :
+   - Voir toutes les commandes
+   - Changer les statuts (réception → préparation → expédiée → facturée → payée)
+
+4. Gérer les clients :
+   - Voir les statistiques clients
+   - Accéder à l'historique d'activités
+   - Modifier les statuts clients
+
+5. Gérer les finances :
+   - Voir les factures
+   - Suivre les paiements
+   - Gérer les dépenses
+
+================================================================================
+ARRÊTER LE SERVEUR
+================================================================================
+
+Dans le terminal où le serveur tourne :
+   Appuyez sur Ctrl+C
+
+Le serveur s'arrête proprement.
+
+================================================================================
+DÉPANNAGE
+================================================================================
+
+PROBLÈME : "No module named django"
+SOLUTION : pip install -r requirements.txt
+
+PROBLÈME : "Table doesn't exist"
+SOLUTION : python manage.py migrate
+
+PROBLÈME : "Port already in use"
+SOLUTION : Le port 8000 est déjà utilisé. Utilisez :
+   python manage.py runserver 8001
+   Puis accédez à http://127.0.0.1:8001/
+
+PROBLÈME : "Static files not found"
+SOLUTION : Normal en développement. Les fichiers statiques sont servis
+   automatiquement par Django.
+
+PROBLÈME : "CSRF verification failed"
+SOLUTION : Assurez-vous d'utiliser {% csrf_token %} dans les formulaires.
+   C'est déjà fait dans tous les templates.
+
+PROBLÈME : "Permission denied" sur /admin/
+SOLUTION : Créez un superutilisateur :
+   python manage.py createsuperuser
+
+================================================================================
+COMPTES DE TEST RECOMMANDÉS
+================================================================================
+
+ADMINISTRATEUR :
+   Username : admin
+   Email : admin@nordik.local
+   Password : Azerty123!
+   (Créer avec : python create_admin.py)
+
+CLIENT TEST :
+   Créer via /register/ avec :
+   - Nom : Client Test
+   - Email : client@test.com
+   - Password : test123456
+
+================================================================================
+URLS PRINCIPALES À TESTER
+================================================================================
+
+PUBLIC (sans connexion) :
+- http://127.0.0.1:8000/ → Tableau de bord
+- http://127.0.0.1:8000/stocks/catalogue/ → Catalogue
+- http://127.0.0.1:8000/stocks/produit/1/ → Fiche produit (exemple)
+- http://127.0.0.1:8000/register/ → Inscription
+- http://127.0.0.1:8000/login/ → Connexion
+
+CLIENT (nécessite connexion) :
+- http://127.0.0.1:8000/clients/panier/ → Panier
+- http://127.0.0.1:8000/clients/commander/ → Checkout
+- http://127.0.0.1:8000/clients/mes-commandes/ → Mes commandes
+
+ADMIN (nécessite superutilisateur) :
+- http://127.0.0.1:8000/admin/ → Interface admin
+- http://127.0.0.1:8000/stocks/ → Gestion stocks
+- http://127.0.0.1:8000/finances/ → Finances
+- http://127.0.0.1:8000/clients/ → Clients
+
+================================================================================
+VÉRIFICATION DU FONCTIONNEMENT
+================================================================================
+
+CHECKLIST DE TEST :
+
+✅ Le serveur démarre sans erreur
+✅ La page d'accueil s'affiche
+✅ Le catalogue est accessible
+✅ L'inscription fonctionne
+✅ La connexion fonctionne
+✅ L'ajout au panier fonctionne
+✅ Le checkout fonctionne
+✅ Les commandes apparaissent dans "Mes commandes"
+✅ Les factures sont générées
+✅ L'interface admin est accessible
+✅ Les produits peuvent être gérés dans l'admin
+✅ Les commandes peuvent être gérées dans l'admin
+
+Si tous ces points sont vérifiés, l'application fonctionne correctement ! 🎉
+
+================================================================================
+FIN DU GUIDE
+================================================================================
+

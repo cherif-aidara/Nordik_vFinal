@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historique d'activités - {{ client.name }} - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    .activity-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .activity-header {
+      margin-bottom: 30px;
+    }
+    .activity-header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .activity-header a {
+      color: #1d4ed8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .activity-header a:hover {
+      text-decoration: underline;
+    }
+    .client-info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .client-info-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #1f2937;
+    }
+    .client-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .client-detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .client-detail-label {
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .client-detail-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .client-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    .client-status.prospect {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .client-status.active {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .client-status.loyal {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .activity-timeline {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .activity-timeline h2 {
+      font-size: 1.3rem;
+      margin-bottom: 25px;
+      color: #1f2937;
+    }
+    .activity-item {
+      display: flex;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid #f3f4f6;
+      position: relative;
+    }
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    .activity-item::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 50px;
+      bottom: -20px;
+      width: 2px;
+      background: #e5e7eb;
+    }
+    .activity-item:last-child::before {
+      display: none;
+    }
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+    }
+    .activity-icon.order {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .activity-icon.email {
+      background: #e0e7ff;
+      color: #6366f1;
+    }
+    .activity-icon.call {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .activity-icon.meeting {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .activity-icon.other {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    .activity-content {
+      flex: 1;
+    }
+    .activity-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #1f2937;
+    }
+    .activity-description {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .activity-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #d1d5db;
+    }
+    .empty-state h2 {
+      margin-bottom: 10px;
+      color: #1f2937;
+    }
+  </style>
+</head>
+<body>
+  <div class="activity-container">
+    <div class="activity-header">
+      <a href="{% url 'clients:clients' %}"><i class="fa-solid fa-arrow-left"></i> Retour aux clients</a>
+      <h1><i class="fa-solid fa-history"></i> Historique d'activités</h1>
+    </div>
+
+    <div class="client-info-card">
+      <h2>{{ client.name }}</h2>
+      <div class="client-details">
+        <div class="client-detail-item">
+          <span class="client-detail-label">Email</span>
+          <span class="client-detail-value">{{ client.email }}</span>
+        </div>
+        <div class="client-detail-item">
+          <span class="client-detail-label">Téléphone</span>
+          <span class="client-detail-value">{{ client.phone|default:"Non renseigné" }}</span>
+        </div>
+        <div class="client-detail-item">
+          <span class="client-detail-label">Statut</span>
+          <span class="client-status {{ client.status|lower }}">{{ client.get_status_display }}</span>
+        </div>
+        <div class="client-detail-item">
+          <span class="client-detail-label">Total commandes</span>
+          <span class="client-detail-value">{{ client.total_orders }}</span>
+        </div>
+        <div class="client-detail-item">
+          <span class="client-detail-label">Total dépensé</span>
+          <span class="client-detail-value">{{ client.total_spent|floatformat:2 }} $</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-timeline">
+      <h2>Activités récentes</h2>
+      {% if activities %}
+      {% for activity in activities %}
+      <div class="activity-item">
+        <div class="activity-icon {{ activity.activity_type|lower }}">
+          {% if activity.activity_type == 'ORDER' %}
+          <i class="fa-solid fa-box"></i>
+          {% elif activity.activity_type == 'EMAIL' %}
+          <i class="fa-solid fa-envelope"></i>
+          {% elif activity.activity_type == 'CALL' %}
+          <i class="fa-solid fa-phone"></i>
+          {% elif activity.activity_type == 'MEETING' %}
+          <i class="fa-solid fa-calendar"></i>
+          {% else %}
+          <i class="fa-solid fa-circle-info"></i>
+          {% endif %}
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">{{ activity.get_activity_type_display }}</div>
+          <div class="activity-description">{{ activity.description }}</div>
+          <div class="activity-meta">
+            <span><i class="fa-solid fa-calendar"></i> {{ activity.created_at|date:"d/m/Y H:i" }}</span>
+            {% if activity.user %}
+            <span><i class="fa-solid fa-user"></i> {{ activity.user.get_full_name|default:activity.user.username }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <i class="fa-solid fa-inbox"></i>
+        <h2>Aucune activité enregistrée</h2>
+        <p>Il n'y a pas encore d'activités pour ce client.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
+

@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nouvelle interaction client - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'stocks:stock_list' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'finances:finances' %}"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'clients:clients' %}" class="active"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-message-plus"></i>
+        </div>
+        <div>
+          <h2>Nouvelle interaction client</h2>
+          <p>Consigner un appel, un courriel ou une note de suivi.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'clients:clients' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Retour aux clients
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-table form-card">
+      <h2><i class="fa-solid fa-pen-to-square"></i> Détails de l'interaction</h2>
+      <form method="post" class="form-grid">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-user"></i> {{ form.client.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.client }}
+          </div>
+          {% if form.client.errors %}<div class="field-errors">{{ form.client.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-list"></i> {{ form.interaction_type.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.interaction_type }}
+          </div>
+          {% if form.interaction_type.errors %}<div class="field-errors">{{ form.interaction_type.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group" style="grid-column: 1 / -1;">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-heading"></i> {{ form.subject.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.subject }}
+          </div>
+          {% if form.subject.errors %}<div class="field-errors">{{ form.subject.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group" style="grid-column: 1 / -1;">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-align-left"></i> {{ form.description.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper pgi-textarea-wrapper">
+            {{ form.description }}
+          </div>
+          {% if form.description.errors %}<div class="field-errors">{{ form.description.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-calendar-day"></i> {{ form.interaction_date.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.interaction_date }}
+          </div>
+          {% if form.interaction_date.errors %}<div class="field-errors">{{ form.interaction_date.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-user-tie"></i> {{ form.user_name.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.user_name }}
+          </div>
+          {% if form.user_name.errors %}<div class="field-errors">{{ form.user_name.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="add-btn">
+            <i class="fa-solid fa-floppy-disk"></i> Enregistrer l'interaction
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+
+

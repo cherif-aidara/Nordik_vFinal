@@ -1,0 +1,369 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion - PGI Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root{
+      --primary:#0066cc;
+      --accent:#4cc9f0;
+      --dark:#0f172a;
+      --bg:#0b1120;
+      --card:#020617;
+      --radius:12px;
+      --shadow:0 18px 45px rgba(15,23,42,0.8);
+      --transition:all .3s ease;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins","Inter",sans-serif;}
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,#1d4ed8 0,#0b1120 40%,#020617 100%);
+      color:#e5e7eb;
+    }
+    .container{
+      width:100%;
+      max-width:980px;
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(15,23,42,.9));
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      border:1px solid rgba(148,163,184,.2);
+    }
+    .hero{
+      position:relative;
+      padding:34px 34px 32px;
+      background:radial-gradient(circle at 0 0,#1d4ed8 0,transparent 55%),
+                 radial-gradient(circle at 100% 100%,#22c55e 0,transparent 45%),
+                 #020617;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      color:#e5e7eb;
+    }
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .logo i{
+      font-size:28px;
+      color:#38bdf8;
+      filter:drop-shadow(0 0 12px rgba(56,189,248,.7));
+    }
+    .logo h1{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    .logo span{color:#38bdf8;}
+    .hero h2{
+      margin-top:40px;
+      font-size:26px;
+      font-weight:700;
+    }
+    .hero p{
+      margin-top:10px;
+      font-size:14px;
+      color:#cbd5f5;
+      max-width:340px;
+    }
+    .hero-highlight{
+      display:flex;
+      gap:10px;
+      margin-top:22px;
+      font-size:13px;
+      color:#e5e7eb;
+    }
+    .hero-highlight i{
+      color:#22c55e;
+      margin-top:3px;
+    }
+    .hero-footer{
+      margin-top:32px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      font-size:11px;
+      color:#9ca3af;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(15,23,42,.8);
+      border:1px solid rgba(148,163,184,.3);
+      font-size:11px;
+    }
+    .badge i{color:#38bdf8;}
+    .login-panel{
+      padding:32px 32px 30px;
+      background:rgba(15,23,42,.95);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .login-header{
+      margin-bottom:22px;
+    }
+    .login-header h2{
+      font-size:20px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .login-header p{
+      font-size:13px;
+      color:#9ca3af;
+    }
+    form{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    label{
+      font-size:12px;
+      font-weight:500;
+      color:#cbd5e1;
+      margin-bottom:4px;
+      display:block;
+    }
+    .field{
+      background:rgba(15,23,42,.95);
+      border-radius:var(--radius);
+      border:1px solid rgba(148,163,184,.4);
+      padding:9px 11px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      transition:var(--transition);
+    }
+    .field:focus-within{
+      border-color:#38bdf8;
+      box-shadow:0 0 0 1px rgba(56,189,248,.5);
+    }
+    .field i{
+      color:#64748b;
+      font-size:14px;
+    }
+    .field input{
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#e5e7eb;
+      font-size:13px;
+      width:100%;
+    }
+    .field input::placeholder{color:#64748b;}
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:2px;
+      margin-bottom:4px;
+      font-size:11px;
+      color:#9ca3af;
+    }
+    .row a{
+      color:#38bdf8;
+      text-decoration:none;
+      font-weight:500;
+    }
+    .row a:hover{text-decoration:underline;}
+    .btn{
+      margin-top:6px;
+      padding:10px 14px;
+      border:none;
+      border-radius:999px;
+      background:linear-gradient(135deg,#2563eb,#0ea5e9);
+      color:white;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      box-shadow:0 12px 30px rgba(37,99,235,.55);
+      transition:var(--transition);
+    }
+    .btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 16px 40px rgba(37,99,235,.75);
+    }
+    .btn i{font-size:14px;}
+    .hint{
+      margin-top:14px;
+      font-size:11px;
+      color:#9ca3af;
+      background:rgba(15,23,42,.9);
+      border-radius:10px;
+      padding:8px 10px;
+      border:1px dashed rgba(148,163,184,.6);
+    }
+    .hint code{
+      font-family:monospace;
+      background:rgba(15,23,42,.9);
+      padding:1px 4px;
+      border-radius:4px;
+      color:#e5e7eb;
+    }
+    .error{
+      margin-top:8px;
+      font-size:12px;
+      color:#f97373;
+      display:none;
+    }
+    .error.visible{display:block;}
+    .success{
+      margin-top:8px;
+      font-size:12px;
+      color:#4ade80;
+      display:none;
+    }
+    .success.visible{display:block;}
+    @media (max-width:900px){
+      .container{
+        max-width:520px;
+        grid-template-columns:1fr;
+      }
+      .hero{display:none;}
+    }
+    @media (max-width:520px){
+      body{padding:12px;}
+      .login-panel{padding:24px 20px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div>
+        <div class="logo">
+          <i class="fa-solid fa-mountain-sun"></i>
+          <h1>Nordik<span>Adventures</span></h1>
+        </div>
+        <h2>Connexion au PGI<br />Nordik Adventures</h2>
+        <p>Accédez à votre tableau de bord pour suivre les stocks, la finance, les clients et la logistique en temps réel.</p>
+        <div class="hero-highlight">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <strong>Authentification sécurisée</strong><br />
+            <span>Accès réservé aux utilisateurs autorisés de l’entreprise.</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-footer">
+        <span class="badge"><i class="fa-solid fa-gauge-high"></i> PGI compact pour PME outdoor</span>
+        <span class="badge"><i class="fa-solid fa-lock"></i> Données chiffrées côté navigateur</span>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <div class="login-header">
+        <h2>Se connecter</h2>
+        <p>Entrez vos identifiants pour ouvrir le PGI Nordik Adventures.</p>
+      </div>
+      <form id="loginForm">
+        <div>
+          <label for="email">Identifiant ou courriel</label>
+          <div class="field">
+            <i class="fa-solid fa-user"></i>
+            <input id="email" name="email" type="text" autocomplete="username" placeholder="ex. admin@nordik.local" required />
+          </div>
+        </div>
+
+        <div>
+          <label for="password">Mot de passe</label>
+          <div class="field">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Votre mot de passe" minlength="6" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <label>
+            <input type="checkbox" id="remember" style="margin-right:4px;" />
+            Se souvenir de moi
+          </label>
+          <a href="#" onclick="alert('Fonctionnalité à venir dans la prochaine étape.');return false;">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="btn">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Ouvrir le tableau de bord
+        </button>
+
+        <p id="error" class="error">Identifiants incorrects. Vérifiez votre courriel / identifiant et votre mot de passe.</p>
+        <p id="success" class="success">Connexion réussie, redirection en cours…</p>
+
+        <p class="hint">
+          Pour tester dès maintenant&nbsp;: <br />
+          Identifiant&nbsp;: <code>admin@nordik.local</code><br />
+          Mot de passe&nbsp;: <code>Azerty123!</code>
+        </p>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const DEMO_USER = {
+      login: "admin@nordik.local",
+      password: "Azerty123!",
+      role: "Administrateur",
+      name: "Admin Nordik"
+    };
+
+    const form = document.getElementById("loginForm");
+    const errorEl = document.getElementById("error");
+    const successEl = document.getElementById("success");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      errorEl.classList.remove("visible");
+      successEl.classList.remove("visible");
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("remember").checked;
+
+      const isValid =
+        (email.toLowerCase() === DEMO_USER.login.toLowerCase() ||
+          email.toLowerCase() === "admin") &&
+        password === DEMO_USER.password;
+
+      if (!isValid) {
+        errorEl.classList.add("visible");
+        return;
+      }
+
+      const sessionData = {
+        name: DEMO_USER.name,
+        role: DEMO_USER.role,
+        login: DEMO_USER.login,
+        remember,
+        loginAt: new Date().toISOString()
+      };
+
+      const storage = remember ? localStorage : sessionStorage;
+      storage.setItem("na_session_user", JSON.stringify(sessionData));
+
+      successEl.classList.add("visible");
+
+      setTimeout(() => {
+        window.location.href = "{% url 'pgi:dashboard' %}";
+      }, 700);
+    });
+  </script>
+</body>
+</html>
+
+

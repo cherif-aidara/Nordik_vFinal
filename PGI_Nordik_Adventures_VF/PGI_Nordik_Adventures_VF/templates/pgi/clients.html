@@ -1,0 +1,1386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relations clients - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    .clients-main {
+      display: flex;
+    }
+    .clients-main .main {
+      width: 100%;
+    }
+
+    .crm-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 16px 0;
+      border-bottom: 1px solid #e5e7eb;
+      gap: 18px;
+    }
+    .crm-hero-main {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .crm-hero-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 22px;
+      background: radial-gradient(circle at 20% 0, #38bdf8 0%, #0ea5e9 35%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 26px rgba(56, 189, 248, 0.55);
+      flex-shrink: 0;
+    }
+    .crm-hero-icon i {
+      font-size: 22px;
+      color: #0b1120;
+    }
+    .crm-hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      margin-bottom: 4px;
+    }
+    .crm-hero h1 {
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+    .crm-hero p {
+      font-size: 0.82rem;
+      color: #4b5563;
+    }
+
+    .crm-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .crm-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0 18px 0;
+      gap: 14px;
+    }
+    .crm-toolbar .searchbar {
+      flex: 1;
+    }
+    .crm-toolbar .searchbar input {
+      width: 100%;
+    }
+    .crm-toolbar-filters {
+      display: flex;
+      gap: 8px;
+    }
+    .crm-toolbar-filters select {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+    .crm-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .crm-alert-button {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: none;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.65);
+    }
+    .crm-alert-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 16px;
+      padding: 1px 4px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+    .crm-alert-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 6px;
+      width: 260px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.35);
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      z-index: 40;
+    }
+    .crm-alert-dropdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .crm-alert-dropdown-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 190px;
+      overflow-y: auto;
+    }
+    .crm-alert-dropdown-list li {
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .crm-alert-dropdown-list li span.label {
+      color: #4b5563;
+    }
+    .crm-alert-dropdown-list li span.value {
+      color: #b91c1c;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .crm-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(240px, 0.9fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .crm-main-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .crm-kpi {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .crm-kpi .card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1);
+    }
+    .crm-kpi .card i {
+      width: 30px;
+      height: 30px;
+      font-size: 0.9rem;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: #f9fafb;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+      flex-shrink: 0;
+    }
+    .crm-kpi .card .card-content {
+      align-items: flex-start;
+    }
+    .crm-kpi .card h3 {
+      font-size: 0.98rem;
+    }
+    .crm-kpi .card p {
+      font-size: 0.75rem;
+      text-transform: none;
+      letter-spacing: 0;
+      color: #6b7280;
+    }
+
+    .crm-list {
+      background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 50%);
+      border-radius: 22px;
+      padding: 12px 14px;
+      box-shadow: 0 18px 30px rgba(15, 23, 42, 0.16);
+      border: 1px solid #e5e7eb;
+    }
+    .crm-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+    .crm-list-header h2 {
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .crm-list-header h2 i {
+      color: #2563eb;
+    }
+    .crm-list-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .crm-list-actions button {
+      border-radius: 999px;
+      border: 1px solid #dbeafe;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+      cursor: pointer;
+    }
+    .crm-list-actions button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .crm-status-pill {
+      font-size: 0.74rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    .crm-list-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 360px;
+      overflow-y: auto;
+      margin-top: 6px;
+    }
+    .crm-list-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(120px, 0.8fr);
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.16s ease, border-color 0.16s ease, transform 0.1s ease, box-shadow 0.16s ease;
+    }
+    .crm-list-item:hover {
+      background: #f9fafb;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+    }
+    .crm-list-item.selected {
+      background: #eff6ff;
+      border-color: #2563eb;
+      box-shadow: 0 10px 18px rgba(37, 99, 235, 0.25);
+    }
+    .crm-list-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .crm-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: #f9fafb;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.35);
+      flex-shrink: 0;
+    }
+    .crm-list-item-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .crm-list-item-main strong {
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .crm-list-item-tags {
+      display: flex;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #6b7280;
+      flex-wrap: wrap;
+    }
+    .crm-list-item-metrics {
+      text-align: right;
+      font-size: 0.76rem;
+      color: #4b5563;
+    }
+
+    .crm-side-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .crm-panel {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
+    }
+    .crm-panel h3 {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+    .crm-panel h3 span.badge-blue {
+      font-size: 0.7rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .crm-campaigns {
+      margin-top: 12px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e5e7eb;
+      font-size: 0.8rem;
+    }
+    .crm-campaigns-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .crm-campaigns-header h3 {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+    .crm-campaign-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #4b5563;
+    }
+    .crm-campaign-tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .crm-detail-main {
+      font-size: 0.8rem;
+    }
+    .crm-detail-main p {
+      margin: 0 0 4px 0;
+    }
+    .crm-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 0.72rem;
+    }
+    .crm-tags span {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .crm-detail-finance {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #e5e7eb;
+      font-size: 0.78rem;
+    }
+    .crm-detail-finance ul {
+      list-style: none;
+      padding: 0;
+      margin: 4px 0 0 0;
+      max-height: 90px;
+      overflow-y: auto;
+    }
+    .crm-detail-finance li {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .crm-detail-finance span.fact-montant {
+      font-weight: 600;
+    }
+    .crm-detail-finance span.fact-statut {
+      font-weight: 500;
+    }
+
+    .crm-timeline {
+      margin-top: 8px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .crm-timeline-item {
+      font-size: 0.78rem;
+      padding: 4px 0;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+    }
+    .crm-timeline-item i {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .crm-alerts ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.78rem;
+    }
+    .crm-alerts li {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+    .crm-alerts li span.label {
+      color: #4b5563;
+    }
+    .crm-alerts li span.value {
+      font-weight: 600;
+      color: #b91c1c;
+    }
+
+    .crm-chat {
+      display: none;
+    }
+    .crm-chat-messages {
+      max-height: 120px;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: #f9fafb;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+    }
+    .crm-chat-message {
+      display: flex;
+      margin-bottom: 6px;
+    }
+    .crm-chat-message.from-client {
+      justify-content: flex-start;
+    }
+    .crm-chat-message.from-crm {
+      justify-content: flex-end;
+    }
+    .crm-chat-bubble {
+      max-width: 80%;
+      padding: 6px 10px;
+      border-radius: 12px;
+      background: #e5e7eb;
+      color: #111827;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .crm-chat-message.from-crm .crm-chat-bubble {
+      background: #2563eb;
+      color: #f9fafb;
+    }
+    .crm-chat-meta {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+    .crm-chat-message.from-crm .crm-chat-meta {
+      color: #bfdbfe;
+    }
+    .crm-chat-input {
+      display: flex;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+    .crm-chat-input input {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      font-size: 0.78rem;
+    }
+    .crm-chat-input button {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: #2563eb;
+      color: #f9fafb;
+    }
+
+    .crm-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      backdrop-filter: blur(4px);
+    }
+    .crm-modal {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 14px 16px 12px 16px;
+      width: min(520px, 96%);
+      box-shadow: 0 24px 50px rgba(15, 23, 42, 0.6);
+      font-size: 0.82rem;
+    }
+    .crm-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .crm-modal-header h3 {
+      font-size: 1rem;
+      margin: 0;
+    }
+    .crm-modal-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .crm-modal-subtitle {
+      font-size: 0.76rem;
+      color: #6b7280;
+    }
+    .crm-modal-tags {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 0.7rem;
+    }
+    .crm-modal-close {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #9ca3af;
+    }
+    .crm-modal-messages {
+      max-height: 220px;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: #f9fafb;
+      padding: 6px 8px;
+      margin-top: 4px;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+    }
+    .crm-modal-input {
+      display: flex;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+    .crm-modal-input input {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+    }
+    .crm-modal-input button {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 10px;
+      background: #2563eb;
+      color: #f9fafb;
+      cursor: pointer;
+    }
+
+    .crm-detail-modal .crm-modal-header {
+      background: linear-gradient(120deg, #1d4ed8, #0f172a);
+      margin: -14px -16px 10px -16px;
+      padding: 12px 16px;
+      border-radius: 18px 18px 0 0;
+      color: #e5e7eb;
+    }
+    .crm-detail-modal .crm-modal-close {
+      color: #e5e7eb;
+    }
+    .crm-detail-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 20% 0, #38bdf8 0, #0ea5e9 35%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #0b1120;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.6);
+    }
+    .crm-detail-modal .crm-modal-title {
+      flex: 1;
+    }
+    .crm-detail-modal .crm-modal-subtitle {
+      color: #cbd5f5;
+    }
+    .crm-detail-modal .crm-modal-tags span {
+      background: rgba(15, 23, 42, 0.35);
+      color: #e5e7eb;
+      border-radius: 999px;
+      padding: 2px 7px;
+    }
+
+    .crm-detail-modal .crm-modal-body {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 10px;
+    }
+    .crm-detail-section h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #6b7280;
+    }
+    .crm-detail-section p {
+      margin: 0 0 3px 0;
+    }
+    .crm-detail-section ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+    .crm-detail-section ul li {
+      font-size: 0.78rem;
+      padding: 3px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .status-chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 500;
+    }
+    .status-chip.actif {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .status-chip.prospect {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .status-chip.fidele {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .status-chip.inactif {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .score-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .crm-footer {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 1100px) {
+      .crm-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .crm-hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .crm-hero-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'pgi:clients' %}" class="active"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN WRAPPER ===== -->
+  <div class="main clients-main">
+    <main class="main">
+      <!-- HERO CRM -->
+      <section class="crm-hero">
+        <div class="crm-hero-main">
+          <div class="crm-hero-icon">
+            <i class="fa-solid fa-user-group"></i>
+          </div>
+          <div>
+            <span class="crm-hero-chip">
+              <i class="fa-solid fa-layer-group"></i>
+              Module Clients · PGI Nordik
+            </span>
+            <h1>Relation client</h1>
+            <p>Vue simple des clients, de leurs statuts, interactions et performances commerciales.</p>
+          </div>
+        </div>
+        <div class="crm-hero-actions">
+          <button class="add-btn" onclick="window.location.href='{% url "clients:client_create" %}'">
+            <i class="fa-solid fa-user-plus"></i>
+            Nouveau client
+          </button>
+          <button class="add-btn" onclick="window.location.href='{% url "clients:interaction_create" %}'">
+            <i class="fa-solid fa-message-plus"></i>
+            Nouvelle interaction
+          </button>
+        </div>
+      </section>
+
+      <!-- BARRE DE RECHERCHE + FILTRES -->
+      <section class="crm-toolbar">
+        <div class="searchbar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="crmSearch" placeholder="Rechercher un client, une entreprise ou un contact..." />
+        </div>
+        <div class="crm-toolbar-actions">
+          <div class="crm-toolbar-filters">
+            <select id="filtreStatut">
+              <option value="">Tous statuts</option>
+              <option value="Prospect">Prospect</option>
+              <option value="Actif">Actif</option>
+              <option value="Fidèle">Fidèle</option>
+              <option value="Inactif">Inactif</option>
+            </select>
+            <select id="filtreSatisfaction">
+              <option value="">Satisfaction</option>
+              <option value="3">≥ 3</option>
+              <option value="4">≥ 4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+          <div style="position:relative;">
+            <button class="crm-alert-button" id="crmAlertButton" onclick="toggleAlertDropdown()">
+              <i class="fa-solid fa-bell"></i>
+              <span class="crm-alert-badge" id="crmAlertCount">0</span>
+            </button>
+            <div class="crm-alert-dropdown" id="crmAlertDropdown" style="display:none;">
+              <div class="crm-alert-dropdown-header">
+                <span>Alertes CRM</span>
+              </div>
+              <ul class="crm-alert-dropdown-list" id="crmAlertsList"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LAYOUT PRINCIPAL -->
+      <section class="crm-layout">
+        <!-- COLONNE PRINCIPALE -->
+        <div class="crm-main-column">
+          <!-- LISTE DES CLIENTS -->
+          <section class="crm-list">
+            <div class="crm-list-header">
+              <h2><i class="fa-solid fa-users-viewfinder"></i> Portefeuille clients</h2>
+              <div class="crm-list-actions">
+                <span class="crm-status-pill" id="crmResumePortefeuille">0 actifs · 0 prospects</span>
+                <button id="crmFicheBtn" onclick="ouvrirFicheClient()" disabled>Voir fiche</button>
+                <button id="crmDiscussBtn" onclick="ouvrirMessagerieClient()" disabled>Discuter</button>
+              </div>
+            </div>
+            <div class="crm-list-body" id="crmList"></div>
+          </section>
+
+          <!-- CAMPAGNES MARKETING (RÉSUMÉ) -->
+          <section class="crm-campaigns">
+            <div class="crm-campaigns-header">
+              <h3>Campagnes marketing</h3>
+              <div class="crm-campaign-tags">
+                <span class="crm-campaign-tag">Hiver Nordik · 42 % réponse</span>
+                <span class="crm-campaign-tag">Relance paniers · 18 % conversion</span>
+                <span class="crm-campaign-tag">Programme fidélité · 65 membres</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- COLONNE LATÉRALE -->
+        <aside class="crm-side-column">
+          <!-- KPIs VERTICAUX À DROITE -->
+          <section class="kpi crm-kpi">
+            <div class="card">
+              <i class="fa-solid fa-users"></i>
+              <div class="card-content">
+                <p>Total clients</p>
+                <h3 id="kpiTotalClients">0</h3>
+              </div>
+            </div>
+            <div class="card">
+              <i class="fa-solid fa-user-check"></i>
+              <div class="card-content">
+                <p>Clients actifs</p>
+                <h3 id="kpiActifs">0</h3>
+              </div>
+            </div>
+            <div class="card">
+              <i class="fa-solid fa-star"></i>
+              <div class="card-content">
+                <p>Clients fidèles</p>
+                <h3 id="kpiFideles">0</h3>
+              </div>
+            </div>
+            <div class="card">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <div class="card-content">
+                <p>Taux fidélisation</p>
+                <h3 id="kpiFidelisation">0 %</h3>
+              </div>
+            </div>
+            <div class="card">
+              <i class="fa-solid fa-bullseye-arrow"></i>
+              <div class="card-content">
+                <p>Taux conversion</p>
+                <h3 id="kpiConversion">0 %</h3>
+              </div>
+            </div>
+          </section>
+
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  {{ crm_clients|json_script:"crm-clients-json" }}
+
+  <script>
+    // Les "clients" CRM sont pour l'instant construits à partir des fournisseurs réels.
+    const clientsData = (() => {
+      const el = document.getElementById("crm-clients-json");
+      if (!el) return [];
+      try {
+        const parsed = JSON.parse(el.textContent);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error("Erreur de lecture des données clients CRM", e);
+        return [];
+      }
+    })();
+
+    let clientSelectionneId = null;
+
+    function calculerScoreClient(c) {
+      const poidsVentes = Math.min(c.ventes / 3000, 1) * 5;
+      const poidsCommandes = Math.min(c.commandes / 5, 1) * 5;
+      const poidsSatisfaction = c.satisfaction;
+      return ((poidsVentes + poidsCommandes + poidsSatisfaction) / 3).toFixed(1);
+    }
+
+    function appliquerReglesStatut(c) {
+      if (c.commandes > 0 && c.statut === "Prospect") {
+        c.statut = "Actif";
+      }
+      if (c.commandes >= 5 || c.ventes >= 3000) {
+        c.statut = "Fidèle";
+      }
+      if (c.derniereActiviteMois >= 12) {
+        c.statut = "Inactif";
+      }
+    }
+
+    function mettreAJourStatuts() {
+      clientsData.forEach(appliquerReglesStatut);
+    }
+
+    function majKPIs() {
+      const total = clientsData.length;
+      const actifs = clientsData.filter(c => c.statut === "Actif" || c.statut === "Fidèle").length;
+      const fideles = clientsData.filter(c => c.statut === "Fidèle").length;
+      const prospects = clientsData.filter(c => c.statut === "Prospect").length;
+      const convertis = clientsData.filter(c => c.statut !== "Prospect").length;
+
+      const kpiTotal = document.getElementById("kpiTotalClients");
+      const kpiActifs = document.getElementById("kpiActifs");
+      const kpiFideles = document.getElementById("kpiFideles");
+      const kpiFidelisation = document.getElementById("kpiFidelisation");
+      const kpiConversion = document.getElementById("kpiConversion");
+
+      if (!kpiTotal) return;
+
+      kpiTotal.textContent = total;
+      kpiActifs.textContent = actifs;
+      kpiFideles.textContent = fideles;
+
+      const tauxFidelisation = total ? Math.round((fideles / actifs || 0) * 100) : 0;
+      const tauxConversion = total ? Math.round((convertis / total) * 100) : 0;
+
+      kpiFidelisation.textContent = Number.isFinite(tauxFidelisation) ? tauxFidelisation + " %" : "0 %";
+      kpiConversion.textContent = tauxConversion + " %";
+
+      const resume = document.getElementById("crmResumePortefeuille");
+      resume.textContent = `${actifs} actifs · ${prospects} prospects`;
+    }
+
+    function afficherTableClients() {
+      const container = document.getElementById("crmList");
+      if (!container) return;
+
+      const search = (document.getElementById("crmSearch")?.value || "").toLowerCase();
+      const statut = document.getElementById("filtreStatut")?.value || "";
+      const satMin = parseInt(document.getElementById("filtreSatisfaction")?.value || "0", 10);
+
+      const anciennesLignes = Array.from(container.querySelectorAll(".crm-list-item"));
+      anciennesLignes.forEach(l => l.remove());
+
+      clientsData
+        .filter(c => {
+          const okNom = c.nom.toLowerCase().includes(search);
+          const okStatut = !statut || c.statut === statut;
+          const okSat = !satMin || c.satisfaction >= satMin;
+          return okNom && okStatut && okSat;
+        })
+        .forEach(c => {
+          const score = calculerScoreClient(c);
+          const row = document.createElement("div");
+          row.className = "crm-list-item";
+          row.dataset.id = c.id;
+
+          const classeStatut = {
+            "Actif": "actif",
+            "Fidèle": "fidele",
+            "Inactif": "inactif",
+            "Prospect": "prospect"
+          }[c.statut] || "actif";
+
+          const initial = c.nom.split(" ").map(p => p[0]).join("").substring(0, 2).toUpperCase();
+          row.innerHTML = `
+            <div class="crm-list-item-left">
+              <div class="crm-avatar">${initial}</div>
+              <div class="crm-list-item-main">
+                <strong>${c.nom}</strong>
+                <div class="crm-list-item-tags">
+                  <span class="status-chip ${classeStatut}">${c.statut}</span>
+                  <span>${c.type}</span>
+                </div>
+              </div>
+            </div>
+            <div class="crm-list-item-metrics">
+              <div>${c.ventes.toLocaleString("fr-CA", { style: "currency", currency: "CAD" })}</div>
+              <div>${c.derniereActiviteMois} mois</div>
+            </div>
+          `;
+
+          row.addEventListener("click", () => {
+            document
+              .querySelectorAll(".crm-list-item.selected")
+              .forEach(el => el.classList.remove("selected"));
+            row.classList.add("selected");
+            afficherDetailClient(c.id);
+          });
+          container.appendChild(row);
+        });
+    }
+
+    function afficherDetailClient(id) {
+      const client = clientsData.find(c => c.id === id);
+      if (!client) return;
+
+      clientSelectionneId = id;
+
+      const btnDiscuter = document.getElementById("crmDiscussBtn");
+      if (btnDiscuter) {
+        btnDiscuter.disabled = false;
+        btnDiscuter.textContent = `Discuter avec ${client.nom}`;
+      }
+
+      const btnFiche = document.getElementById("crmFicheBtn");
+      if (btnFiche) {
+        btnFiche.disabled = false;
+        btnFiche.textContent = "Voir fiche";
+      }
+    }
+
+    function majAlertesCRM() {
+      const list = document.getElementById("crmAlertsList");
+      const badge = document.getElementById("crmAlertCount");
+      if (!list || !badge) return;
+
+      list.innerHTML = "";
+      const alertes = [];
+
+      clientsData.forEach(c => {
+        if (c.statut === "Inactif") {
+          alertes.push({
+            label: `Client inactif : ${c.nom}`,
+            value: `${c.derniereActiviteMois} mois`,
+            clientId: c.id
+          });
+        }
+        if (c.statut === "Prospect" && c.derniereActiviteMois > 3) {
+          alertes.push({
+            label: `Prospect à relancer : ${c.nom}`,
+            value: `${c.derniereActiviteMois} mois`,
+            clientId: c.id
+          });
+        }
+        if (c.satisfaction && c.satisfaction <= 2) {
+          alertes.push({
+            label: `Satisfaction faible pour ${c.nom}`,
+            value: `${c.satisfaction}/5`,
+            clientId: c.id
+          });
+        }
+        const factRetard = (c.factures || []).filter(f => f.statut === "En retard");
+        if (factRetard.length > 0) {
+          alertes.push({
+            label: `Facture en retard pour ${c.nom}`,
+            value: factRetard[0].montant.toLocaleString("fr-CA", { style: "currency", currency: "CAD" }),
+            clientId: c.id
+          });
+        }
+      });
+
+      if (alertes.length === 0) {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="label"><span class="status-dot ok"></span>Aucune alerte critique</span><span class="value">OK</span>`;
+        list.appendChild(li);
+      } else {
+        alertes.forEach(a => {
+          const li = document.createElement("li");
+          li.innerHTML = `<span class="label">${a.label}</span><span class="value">${a.value}</span>`;
+          if (a.clientId) {
+            li.style.cursor = "pointer";
+            li.addEventListener("click", () => consulterAlerteClient(a.clientId));
+          }
+          list.appendChild(li);
+        });
+      }
+
+      badge.textContent = alertes.length;
+    }
+
+    function toggleAlertDropdown() {
+      const dropdown = document.getElementById("crmAlertDropdown");
+      if (!dropdown) return;
+      const isVisible = dropdown.style.display === "block";
+      dropdown.style.display = isVisible ? "none" : "block";
+    }
+
+    function fermerAlertDropdown() {
+      const dropdown = document.getElementById("crmAlertDropdown");
+      if (dropdown) dropdown.style.display = "none";
+    }
+
+    function consulterAlerteClient(clientId) {
+      const search = document.getElementById("crmSearch");
+      const filtreStatut = document.getElementById("filtreStatut");
+      const filtreSatisfaction = document.getElementById("filtreSatisfaction");
+      if (search) search.value = "";
+      if (filtreStatut) filtreStatut.value = "";
+      if (filtreSatisfaction) filtreSatisfaction.value = "";
+
+      afficherTableClients();
+
+      const row = document.querySelector(`.crm-list-item[data-id="${clientId}"]`);
+      if (row) {
+        document
+          .querySelectorAll(".crm-list-item.selected")
+          .forEach(el => el.classList.remove("selected"));
+        row.classList.add("selected");
+      }
+
+      clientSelectionneId = clientId;
+      afficherDetailClient(clientId);
+      fermerAlertDropdown();
+      ouvrirFicheClient();
+    }
+
+    function renderChatCRM() {
+      const zone = document.getElementById("crmChatMessages");
+      if (!zone) return;
+      zone.innerHTML = "";
+
+      const client = clientsData.find(c => c.id === clientSelectionneId);
+      if (!client || !client.messages || client.messages.length === 0) {
+        const div = document.createElement("div");
+        div.className = "crm-chat-message from-crm";
+        div.innerHTML = `<div class="crm-chat-bubble"><span>Aucun message pour ce client pour l’instant.</span></div>`;
+        zone.appendChild(div);
+        return;
+      }
+
+      client.messages.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "crm-chat-message " + (m.auteur === "client" ? "from-client" : "from-crm");
+        const auteur = m.auteur === "client" ? "Client" : "Nordik";
+        div.innerHTML = `
+          <div class="crm-chat-bubble">
+            <span>${m.texte}</span>
+            <span class="crm-chat-meta">${auteur} · ${m.date}</span>
+          </div>
+        `;
+        zone.appendChild(div);
+      });
+    }
+
+    function renderHistoriqueCRM() {
+      const timeline = document.getElementById("crmTimeline");
+      if (!timeline) return;
+      const client = clientsData.find(c => c.id === clientSelectionneId);
+      if (!client) return;
+
+      timeline.innerHTML = "";
+      client.interactions.forEach(txt => {
+        const item = document.createElement("div");
+        item.className = "crm-timeline-item";
+        item.innerHTML = `<i class="fa-solid fa-circle-dot"></i><span>${txt}</span>`;
+        timeline.appendChild(item);
+      });
+    }
+
+    function envoyerMessageCRM() {
+      if (!clientSelectionneId) {
+        alert("Sélectionne d’abord un client dans la liste.");
+        return;
+      }
+      const input = document.getElementById("crmChatInput");
+      if (!input || !input.value.trim()) return;
+
+      const client = clientsData.find(c => c.id === clientSelectionneId);
+      if (!client) return;
+
+      const texte = input.value.trim();
+      const dateStr = new Date().toLocaleDateString("fr-CA");
+
+      client.messages = client.messages || [];
+      client.messages.push({ texte, auteur: "crm", date: dateStr });
+
+      client.interactions.unshift(`${dateStr} · Note CRM : ${texte}`);
+      client.derniereActiviteMois = 0;
+
+      mettreAJourStatuts();
+      majKPIs();
+      afficherTableClients();
+      afficherDetailClient(client.id);
+      majAlertesCRM();
+
+      input.value = "";
+    }
+
+    function ouvrirMessagerieClient() {
+      if (!clientSelectionneId) {
+        alert("Sélectionne d’abord un client dans la liste.");
+        return;
+      }
+      const client = clientsData.find(c => c.id === clientSelectionneId);
+      if (!client) return;
+
+      const overlay = document.createElement("div");
+      overlay.className = "crm-modal-overlay";
+      overlay.id = "crmChatOverlay";
+      overlay.innerHTML = `
+        <div class="crm-modal">
+          <div class="crm-modal-header">
+            <div class="crm-modal-title">
+              <h3>${client.nom}</h3>
+              <div class="crm-modal-subtitle">${client.type} · ${client.email || "courriel inconnu"} · ${client.telephone || "téléphone inconnu"}</div>
+              <div class="crm-modal-tags">
+                <span class="status-chip ${client.statut.toLowerCase()}">${client.statut}</span>
+                <span>Ventes : ${client.ventes.toLocaleString("fr-CA", { style: "currency", currency: "CAD" })}</span>
+                <span>Commandes : ${client.commandes}</span>
+              </div>
+            </div>
+            <button class="crm-modal-close" onclick="fermerMessagerieClient()">&times;</button>
+          </div>
+          <div class="crm-modal-messages" id="crmChatMessages"></div>
+          <div class="crm-modal-input">
+            <input id="crmChatInput" placeholder="Écrire un suivi client (appel, courriel, note interne)..." />
+            <button onclick="envoyerMessageCRM()">Envoyer</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      renderChatCRM();
+    }
+
+    function fermerMessagerieClient() {
+      document.getElementById("crmChatOverlay")?.remove();
+    }
+
+    function ouvrirFicheClient() {
+      if (!clientSelectionneId) {
+        alert("Sélectionne d’abord un client dans la liste.");
+        return;
+      }
+      const client = clientsData.find(c => c.id === clientSelectionneId);
+      if (!client) return;
+
+      const overlay = document.createElement("div");
+      overlay.className = "crm-modal-overlay";
+      overlay.id = "crmDetailOverlay";
+
+      const score = calculerScoreClient(client);
+      const nbFactures = client.factures ? client.factures.length : 0;
+      const enRetard = (client.factures || []).filter(f => f.statut === "En retard").length;
+
+      const initial = client.nom.split(" ").map(p => p[0]).join("").substring(0, 2).toUpperCase();
+
+      overlay.innerHTML = `
+        <div class="crm-modal crm-detail-modal">
+          <div class="crm-modal-header">
+            <div class="crm-detail-avatar">${initial}</div>
+            <div class="crm-modal-title">
+              <h3>${client.nom}</h3>
+              <div class="crm-modal-subtitle">${client.type} · ${client.email || "courriel inconnu"} · ${client.telephone || "téléphone inconnu"}</div>
+              <div class="crm-modal-tags">
+                <span class="status-chip ${client.statut.toLowerCase()}">${client.statut}</span>
+                <span>Ventes : ${client.ventes.toLocaleString("fr-CA", { style: "currency", currency: "CAD" })}</span>
+                <span>Commandes : ${client.commandes}</span>
+                <span>Score : ${score}/5</span>
+              </div>
+            </div>
+            <button class="crm-modal-close" onclick="fermerFicheClient()">&times;</button>
+          </div>
+          <div class="crm-modal-body">
+            <div class="crm-detail-section">
+              <h4>Informations client</h4>
+              <p>Statut : <strong>${client.statut}</strong></p>
+              <p>Dernière activité : <strong>${client.derniereActiviteMois} mois</strong></p>
+              <p>Satisfaction : <strong>${client.satisfaction}/5</strong></p>
+              <p>Segment : <strong>${client.commandes >= 5 || client.ventes >= 3000 ? "PREMIUM" : "Standard"}</strong></p>
+              <h4 style="margin-top:6px;">Historique</h4>
+              <ul>
+                ${(client.interactions || []).map(txt => `<li>${txt}</li>`).join("")}
+              </ul>
+            </div>
+            <div class="crm-detail-section">
+              <h4>Factures & paiements</h4>
+              <p>${nbFactures} facture${nbFactures > 1 ? "s" : ""}, ${enRetard} en retard</p>
+              <ul>
+                ${(client.factures || []).map(f => `
+                  <li>
+                    ${f.numero} — <span class="fact-montant">${f.montant.toLocaleString("fr-CA", { style: "currency", currency: "CAD" })}</span> — <span class="fact-statut">${f.statut}</span>
+                  </li>
+                `).join("")}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+    }
+
+    function fermerFicheClient() {
+      document.getElementById("crmDetailOverlay")?.remove();
+    }
+
+    function ouvrirFormulaireClient() {
+      alert("Formulaire d’ajout de client (maquette) — à brancher plus tard sur la base de données.");
+    }
+
+    function ouvrirNouvelleInteraction() {
+      if (!clientsData.length) {
+        alert("Aucun client n’est encore enregistré dans la base de données.");
+        return;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      mettreAJourStatuts();
+      majKPIs();
+      afficherTableClients();
+      majAlertesCRM();
+
+      if (clientsData.length > 0) {
+        clientSelectionneId = clientsData[0].id;
+        const firstItem = document.querySelector(".crm-list-item");
+        if (firstItem) {
+          firstItem.classList.add("selected");
+          afficherDetailClient(clientSelectionneId);
+        }
+      }
+
+      document.getElementById("crmSearch")?.addEventListener("input", afficherTableClients);
+      document.getElementById("filtreStatut")?.addEventListener("change", afficherTableClients);
+      document.getElementById("filtreSatisfaction")?.addEventListener("change", afficherTableClients);
+    });
+  </script>
+</body>
+</html>
+
+

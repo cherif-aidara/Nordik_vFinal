@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ajouter un produit - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'stocks:stock_list' %}" class="active"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'finances:finances' %}"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; Facturation</span></a>
+      <a href="{% url 'clients:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <div>
+          <h2>Ajouter un nouveau produit</h2>
+          <p>Créer un produit en utilisant les mêmes champs que le catalogue Nordik.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'stocks:stock_list' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Retour aux stocks
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-table form-card">
+      <h2><i class="fa-solid fa-pen-to-square"></i> Informations produit</h2>
+
+      <form method="post" enctype="multipart/form-data" class="form-grid">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- Bloc 1 : Identification -->
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-barcode"></i> {{ form.sku.label }}</span>
+            <span class="pgi-label-chip">Identifiant unique</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <i class="fa-solid fa-barcode"></i>
+            {{ form.sku }}
+          </div>
+          {% if form.sku.errors %}<div class="field-errors">{{ form.sku.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-box"></i> {{ form.name.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <i class="fa-solid fa-box"></i>
+            {{ form.name }}
+          </div>
+          {% if form.name.errors %}<div class="field-errors">{{ form.name.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-layer-group"></i> {{ form.category.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <i class="fa-solid fa-layer-group"></i>
+            {{ form.category }}
+          </div>
+          {% if form.category.errors %}<div class="field-errors">{{ form.category.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-truck"></i> {{ form.supplier.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <i class="fa-solid fa-truck"></i>
+            {{ form.supplier }}
+          </div>
+          {% if form.supplier.errors %}<div class="field-errors">{{ form.supplier.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Bloc 2 : Prix & marge -->
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-sack-dollar"></i> {{ form.purchase_cost.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <span class="pgi-prefix">$</span>
+            {{ form.purchase_cost }}
+          </div>
+          {% if form.purchase_cost.errors %}<div class="field-errors">{{ form.purchase_cost.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-tags"></i> {{ form.sale_price.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            <span class="pgi-prefix">$</span>
+            {{ form.sale_price }}
+          </div>
+          {% if form.sale_price.errors %}<div class="field-errors">{{ form.sale_price.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-percent"></i> {{ form.supplier_discount.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.supplier_discount }}
+            <span class="pgi-suffix">%</span>
+          </div>
+          {% if form.supplier_discount.errors %}<div class="field-errors">{{ form.supplier_discount.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Bloc 3 : Stock -->
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-boxes-stacked"></i> {{ form.quantity_in_stock.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.quantity_in_stock }}
+          </div>
+          {% if form.quantity_in_stock.errors %}<div class="field-errors">{{ form.quantity_in_stock.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-bell"></i> {{ form.reorder_threshold.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.reorder_threshold }}
+          </div>
+          {% if form.reorder_threshold.errors %}<div class="field-errors">{{ form.reorder_threshold.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-shield-halved"></i> {{ form.safety_stock.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.safety_stock }}
+          </div>
+          {% if form.safety_stock.errors %}<div class="field-errors">{{ form.safety_stock.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Bloc 4 : Logistique -->
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-weight-hanging"></i> {{ form.weight_kg.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.weight_kg }}
+            <span class="pgi-suffix">kg</span>
+          </div>
+          {% if form.weight_kg.errors %}<div class="field-errors">{{ form.weight_kg.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-calendar-day"></i> {{ form.stock_entry_date.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.stock_entry_date }}
+          </div>
+          {% if form.stock_entry_date.errors %}<div class="field-errors">{{ form.stock_entry_date.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-location-dot"></i> {{ form.warehouse_location.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.warehouse_location }}
+          </div>
+          {% if form.warehouse_location.errors %}<div class="field-errors">{{ form.warehouse_location.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-toggle-on"></i> {{ form.status.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper">
+            {{ form.status }}
+          </div>
+          {% if form.status.errors %}<div class="field-errors">{{ form.status.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Bloc 5 : Description & média -->
+        <div class="pgi-form-group" style="grid-column: 1 / -1;">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-align-left"></i> {{ form.description.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper pgi-textarea-wrapper">
+            {{ form.description }}
+          </div>
+          {% if form.description.errors %}<div class="field-errors">{{ form.description.errors }}</div>{% endif %}
+        </div>
+
+        <div class="pgi-form-group" style="grid-column: 1 / -1;">
+          <div class="pgi-label-row">
+            <span class="pgi-label-title"><i class="fa-solid fa-image"></i> {{ form.image.label }}</span>
+          </div>
+          <div class="pgi-input-wrapper pgi-file-wrapper">
+            {{ form.image }}
+          </div>
+          {% if form.image.errors %}<div class="field-errors">{{ form.image.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="add-btn">
+            <i class="fa-solid fa-floppy-disk"></i> Enregistrer le produit
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+
+

@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ product.name }} - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    .product-detail-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .product-detail-header {
+      margin-bottom: 30px;
+    }
+    .product-detail-header a {
+      color: #1d4ed8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+    .product-detail-header a:hover {
+      text-decoration: underline;
+    }
+    .product-detail-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .product-detail-image {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      color: #6366f1;
+    }
+    .product-detail-info h1 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #1f2937;
+    }
+    .product-detail-category {
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    .product-detail-sku {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+    .product-detail-price {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 20px;
+    }
+    .product-detail-description {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #4b5563;
+      margin-bottom: 30px;
+    }
+    .product-detail-specs {
+      margin-bottom: 30px;
+    }
+    .product-detail-specs h3 {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      color: #1f2937;
+    }
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .spec-label {
+      font-weight: 600;
+      color: #6b7280;
+    }
+    .spec-value {
+      color: #1f2937;
+    }
+    .product-detail-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn-add-cart {
+      flex: 1;
+      padding: 15px;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-add-cart:hover {
+      background: #1e40af;
+    }
+    .btn-add-cart:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .stock-status {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .stock-status.in-stock {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .stock-status.low-stock {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .stock-status.out-of-stock {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    @media (max-width: 768px) {
+      .product-detail-content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="product-detail-container">
+    <div class="product-detail-header">
+      <a href="{% url 'stocks:catalogue' %}"><i class="fa-solid fa-arrow-left"></i> Retour au catalogue</a>
+    </div>
+
+    <div class="product-detail-content">
+      <div class="product-detail-image">
+        <i class="fa-solid fa-box"></i>
+      </div>
+
+      <div class="product-detail-info">
+        <div class="product-detail-category">{{ product.category.name|default:"Non catégorisé" }}</div>
+        <h1>{{ product.name }}</h1>
+        <div class="product-detail-sku">SKU: {{ product.sku }}</div>
+        
+        <div class="product-detail-price">{{ product.sale_price|floatformat:2 }} $</div>
+
+        {% if product.quantity_in_stock > product.reorder_level %}
+        <div class="stock-status in-stock">
+          <i class="fa-solid fa-check-circle"></i> En stock ({{ product.quantity_in_stock }} unités disponibles)
+        </div>
+        {% elif product.quantity_in_stock > 0 %}
+        <div class="stock-status low-stock">
+          <i class="fa-solid fa-exclamation-triangle"></i> Stock faible ({{ product.quantity_in_stock }} unités restantes)
+        </div>
+        {% else %}
+        <div class="stock-status out-of-stock">
+          <i class="fa-solid fa-times-circle"></i> Rupture de stock
+        </div>
+        {% endif %}
+
+        <div class="product-detail-description">
+          {{ product.description|default:"Aucune description disponible pour ce produit."|linebreaks }}
+        </div>
+
+        <div class="product-detail-specs">
+          <h3><i class="fa-solid fa-info-circle"></i> Informations produit</h3>
+          <div class="spec-item">
+            <span class="spec-label">Fournisseur:</span>
+            <span class="spec-value">{{ product.supplier.name|default:"Non spécifié" }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Coût d'achat:</span>
+            <span class="spec-value">{{ product.purchase_cost|floatformat:2 }} $</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Quantité en stock:</span>
+            <span class="spec-value">{{ product.quantity_in_stock }} unités</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Seuil de réapprovisionnement:</span>
+            <span class="spec-value">{{ product.reorder_level }} unités</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Statut:</span>
+            <span class="spec-value">{{ product.get_status_display }}</span>
+          </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="product-detail-actions">
+          <form method="post" action="{% url 'clients:add_to_cart' product.id %}" style="flex: 1;">
+            {% csrf_token %}
+            <button type="submit" class="btn-add-cart" {% if product.quantity_in_stock == 0 %}disabled{% endif %}>
+              <i class="fa-solid fa-cart-plus"></i>
+              {% if product.quantity_in_stock > 0 %}
+                Ajouter au panier
+              {% else %}
+                Indisponible
+              {% endif %}
+            </button>
+          </form>
+        </div>
+        {% else %}
+        <div class="product-detail-actions">
+          <a href="{% url 'pgi:login' %}" class="btn-add-cart">
+            <i class="fa-solid fa-right-to-bracket"></i> Connectez-vous pour ajouter au panier
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

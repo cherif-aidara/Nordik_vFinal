@@ -1,0 +1,273 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paramètres du PGI - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    .settings-main {
+      display: flex;
+    }
+    .settings-main .main {
+      width: 100%;
+    }
+
+    .settings-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0 14px 0;
+      border-bottom: 1px solid #e5e7eb;
+      gap: 16px;
+    }
+    .settings-hero-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .settings-hero-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 20% 0, #38bdf8 0, #0ea5e9 35%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b1120;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.45);
+    }
+    .settings-hero-icon i {
+      font-size: 20px;
+    }
+    .settings-hero h1 {
+      font-size: 1.25rem;
+      margin-bottom: 3px;
+    }
+    .settings-hero p {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .settings-hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      margin-bottom: 3px;
+    }
+
+    .settings-user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.7);
+    }
+    .settings-user-pill i {
+      color: #38bdf8;
+    }
+
+    .settings-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .settings-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 16px 26px rgba(15, 23, 42, 0.14);
+      border: 1px solid #e5e7eb;
+      font-size: 0.8rem;
+    }
+    .settings-card h2 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .settings-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .settings-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .settings-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .settings-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'pgi:stocks' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'pgi:finances' %}"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'pgi:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}" class="active"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="logout-btn" href="{% url 'pgi:login' %}">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main settings-main">
+    <main class="main">
+      <section class="settings-hero">
+        <div class="settings-hero-main">
+          <div class="settings-hero-icon">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <div>
+            <span class="settings-hero-chip">
+              <i class="fa-solid fa-layer-group"></i> Paramètres PGI
+            </span>
+            <h1>Centre de configuration</h1>
+            <p>Réglages principaux du PGI Nordik : fiscalité, stocks, facturation et options globales.</p>
+          </div>
+        </div>
+        <div class="settings-user-pill">
+          <i class="fa-solid fa-user-circle"></i>
+          <span>{{ request.user.get_full_name|default:request.user.username|default:"Tassadit Hammadi" }}</span>
+        </div>
+      </section>
+
+      <section class="settings-layout">
+        <!-- FISCALITÉ & DEVISE (carte 1) -->
+        <section class="settings-card">
+          <h2><i class="fa-solid fa-receipt"></i> Fiscalité & devise</h2>
+          <div class="settings-grid">
+            <div class="settings-field">
+              <span class="settings-label">TPS (fédérale)</span>
+              <span class="settings-value">{{ tps }} %</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">TVQ (provinciale)</span>
+              <span class="settings-value">{{ tvq }} %</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Devise principale</span>
+              <span class="settings-value">{{ devise }}</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Format des montants</span>
+              <span class="settings-value">1 234,56 $ {{ devise }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- STOCKS & RÉAPPROVISIONNEMENT (carte 2) -->
+        <section class="settings-card">
+          <h2><i class="fa-solid fa-boxes-stacked"></i> Stocks & réapprovisionnement</h2>
+          <div class="settings-grid">
+            <div class="settings-field">
+              <span class="settings-label">Seuil “stock bas” par défaut</span>
+              <span class="settings-value">{{ seuil_stock_bas }} unités</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Alerte visuelle</span>
+              <span class="settings-value">Badge rouge dans le module Stocks</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Stratégie de réapprovisionnement</span>
+              <span class="settings-value">Manuelle (à partir des rapports de stock)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- FACTURATION & PAIEMENTS (carte 3) -->
+        <section class="settings-card">
+          <h2><i class="fa-solid fa-file-invoice-dollar"></i> Facturation & paiements</h2>
+          <div class="settings-grid">
+            <div class="settings-field">
+              <span class="settings-label">Délai standard de paiement</span>
+              <span class="settings-value">{{ delai_paiement_jours }} jours</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Numérotation des factures</span>
+              <span class="settings-value">Préfixe FAC‑AAAAMMJJ‑####</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Statut par défaut</span>
+              <span class="settings-value">En attente (à l’émission)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- INTERFACE & UTILISATEURS (carte 4) -->
+        <section class="settings-card">
+          <h2><i class="fa-solid fa-display"></i> Interface & utilisateurs</h2>
+          <div class="settings-grid">
+            <div class="settings-field">
+              <span class="settings-label">Langue de l’interface</span>
+              <span class="settings-value">Français (Canada)</span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Rôle actuel</span>
+              <span class="settings-value">
+                {% if request.user.is_superuser or request.user.is_staff %}
+                  Administrateur PGI
+                {% elif request.user.is_authenticated %}
+                  Utilisateur connecté
+                {% else %}
+                  Invité (démo locale)
+                {% endif %}
+              </span>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Mode de navigation</span>
+              <span class="settings-value">Menu latéral fixe avec modules PGI</span>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+
+

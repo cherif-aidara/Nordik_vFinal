@@ -1,0 +1,329 @@
+================================================================================
+DOCUMENTATION DES DONNÉES UTILISÉES PAR LE PGI NORDIK ADVENTURES
+================================================================================
+
+Ce document résume, pour chaque grand module de l’application, **quelles données**
+sont utilisées et **à quoi elles servent** dans les écrans (tableaux de bord,
+listes, graphiques, etc.).
+
+Il ne décrit **pas tout le code**, mais se concentre sur les **données métiers**
+qui passent entre la base de données, Django et les interfaces HTML/JS.
+
+================================================================================
+1. VUE D’ENSEMBLE : TYPES DE DONNÉES
+================================================================================
+
+Les principales catégories de données sont :
+
+- PRODUITS / STOCKS
+  - Catégories de produits (ProductCategory)
+  - Fournisseurs (Supplier)
+  - Produits (Product) : prix, coûts, stocks, seuils d’alerte
+  - Mouvements de stock (StockMovement)
+
+- FINANCES
+  - Factures clients (Invoice + InvoiceLineItem)
+  - Dépenses / achats (Expense)
+  - Flux de trésorerie (CashFlow)
+
+- CLIENTS / CRM
+  - Clients (Client)
+  - Commandes clients (ClientOrder + OrderLineItem)
+  - Panier d’achats (Cart + CartItem)
+  - Interactions clients (ClientInteraction)
+  - Journaux d’activité (ClientActivityLog)
+  - Évaluations de commande (OrderRating)
+
+Ces données sont stockées dans la base SQLite (`db.sqlite3`), via les modèles
+Django définis dans :
+
+- `stocks/models.py`
+- `finances/models.py`
+- `clients/models.py`
+- `common/models.py` (TimeStampedModel = dates de création/mise à jour)
+
+================================================================================
+2. MODULE STOCKS – DONNÉES UTILISÉES
+================================================================================
+
+Modèles concernés : `ProductCategory`, `Supplier`, `Product`, `StockMovement`.
+
+1) Écran `/stocks/` – Gestion des stocks (`pgi/stocks.html`)
+   Vue : `stocks.views.stock_list`
+
+   DONNÉES CHARGÉES :
+   - Tous les produits (`Product`) avec :
+     - `sku` : code unique produit
+     - `name`, `description`
+     - `purchase_cost` : coût d’achat
+     - `sale_price` : prix de vente
+     - `quantity_in_stock` : quantité en stock
+     - `reorder_threshold` : seuil de réapprovisionnement
+     - `category` : catégorie (FK → ProductCategory)
+     - `supplier` : fournisseur (FK → Supplier)
+     - `total_stock_value` (propriété) : valeur du stock pour ce produit
+     - `is_below_reorder` (propriété) : booléen “sous le seuil”
+
+   - Agrégations calculées dans la vue :
+     - `total_value` : somme de `total_stock_value` pour tous les produits
+     - `low_stock_products` : liste des produits sous le seuil
+     - `low_stock_count` : nombre de produits à réapprovisionner
+     - `suppliers_count` : nombre de fournisseurs (`Supplier`)
+     - `categories` : liste par catégorie avec quantité totale en stock
+
+   UTILISATION DANS L’UI :
+   - Cartes KPI (nombre de produits, valeur de stock, nb d’alertes, fournisseurs)
+   - Tableau d’inventaire détaillé (une ligne par produit)
+   - Filtres visuels (catégorie, statut de stock, fournisseur)
+   - Alertes de stock bas (timeline)
+   - Graphiques :
+     - Top produits par quantité
+     - Valeur de stock par catégorie
+
+2) Écran `/stocks/catalogue/` – Catalogue public (`pgi/catalogue.html`)
+   Vue : `stocks.views.catalogue`
+
+   DONNÉES CHARGÉES :
+   - Produits actifs (`status=STATUS_ACTIVE`)
+   - Catégories (`ProductCategory`) pour la liste de filtres
+   - Paramètres de filtrage issus de la requête GET :
+     - `category` : id de catégorie
+     - `search` : texte recherché (nom, description, SKU)
+
+   UTILISATION :
+   - Grille de cartes produits (image/nom/catégorie/prix/stock)
+   - Filtres par catégorie et recherche texte
+
+3) Écran `/stocks/produit/<id>/` – Fiche produit (`pgi/product_detail.html`)
+   Vue : `stocks.views.product_detail`
+
+   DONNÉES CHARGÉES :
+   - Un produit `Product` (par `id`) avec :
+     - Informations complètes (prix, coûts, stocks, fournisseur, etc.)
+     - Indicateur `is_below_reorder`
+   - Produits similaires de la même catégorie (liste courte)
+
+   UTILISATION :
+   - Affichage des informations détaillées du produit
+   - Bouton “Ajouter au panier” (si l’utilisateur est connecté)
+
+================================================================================
+3. MODULE FINANCES – DONNÉES UTILISÉES
+================================================================================
+
+Modèles concernés : `Invoice`, `InvoiceLineItem`, `Expense`, `CashFlow`.
+
+1) Écran `/finances/` – Cockpit financier (`pgi/finances.html`)
+   Vue : `finances.views.finances`
+
+   DONNÉES PRINCIPALES :
+   - Valeur potentielle de chiffre d’affaires (`potential_revenue`)
+   - Valeur potentielle de CA TTC (`potential_revenue_ttc`)
+   - Valeur de stock (`total_stock_value`)
+   - Marge potentielle (`potential_profit`)
+   - Séries agrégées par mois et par catégorie :
+     - `finance_month_labels` : noms des mois
+     - `finance_month_revenues` : revenus potentiels par mois
+     - `finance_month_costs` : coût de stock introduit par mois
+     - `finance_cat_labels` / `finance_cat_values` : répartition par catégorie
+
+   UTILISATION :
+   - Cartes KPI (CA potentiel TTC, valeur de stock, profit net)
+   - Mini “état des résultats” (revenus, dépenses, profit)
+   - Graphique barres “flux mensuel” (revenus/coûts)
+   - Graphique doughnut “répartition du CA par catégories”
+   - Estimation de trésorerie affichée dans les encadrés latéraux
+
+2) Écran `/finances/factures/` – Factures clients (`pgi/finances_factures.html`)
+   Vue : `finances.views.finances_factures`
+
+   DONNÉES UTILISÉES (modèle complet, même si l’UI actuelle est une maquette) :
+   - `Invoice` :
+     - `invoice_number`, `invoice_date`, `due_date`
+     - `client` (FK → Client)
+     - `amount` : montant HT
+     - `tps`, `tvq`, `total_amount` : montants de taxes et TTC
+     - `status` : PENDING, PAID, OVERDUE, CANCELLED
+   - `InvoiceLineItem` :
+     - Lignes par produit (quantité, prix unitaire, total ligne)
+
+   UTILISATION :
+   - Tableau des factures (numéro, client, HT, taxes, TTC, date, statut)
+   - Données prêtes pour export CSV / graphiques dans le cockpit
+
+3) Écrans `/finances/achats/` et `/finances/tresorerie/`
+   Vues : `finances.views.finances_achats`, `finances.views.finances_tresorerie`
+
+   DONNÉES CIBLÉES (maquette basée sur le modèle) :
+   - `Expense` : dépenses par type, montant, date, statut
+   - `CashFlow` : flux de trésorerie (INCOME / EXPENSE, montant, date)
+
+   UTILISATION :
+   - Tableau des achats/dépenses (fournisseur, type, montant, date, statut)
+   - Timeline de trésorerie (encaissements/décaissements) pour le cash‑flow
+
+================================================================================
+4. MODULE CLIENTS / CRM – DONNÉES UTILISÉES
+================================================================================
+
+Modèles concernés : `Client`, `ClientOrder`, `OrderLineItem`, `Cart`, `CartItem`,
+`ClientInteraction`, `ClientActivityLog`, `OrderRating`.
+
+1) Écran `/clients/` – Cockpit CRM (`pgi/clients.html`)
+   Vue : `clients.views.clients`
+
+   DONNÉES LUES DANS LE MODELE `Client` :
+   - `name`, `email`, `phone`, `address`
+   - `client_type` (Individuel / Entreprise / Partenaire)
+   - `status` (Actif / Inactif)
+   - `loyalty_score` (1–5)
+   - `satisfaction_score` (0–100 %)
+   - `total_orders` : nombre total de commandes
+   - `total_spent` : montant total dépensé
+   - `last_activity_date`
+   - Dates `created_at` / `updated_at` (héritées de TimeStampedModel)
+
+   AGRÉGATIONS CALCULÉES :
+   - `total_clients`
+   - `active_clients`
+   - Moyenne de satisfaction (`avg_satisfaction`)
+   - Moyenne de fidélité (`avg_loyalty`)
+   - Nombre total d’interactions (`total_interactions`)
+   - Croissance mensuelle (`monthly_growth`) basée sur les dates de création
+   - Répartition par type (`type_distribution`)
+   - `interactions_by_month` : nb d’interactions par “mois glissant” (12 valeurs)
+
+   DONNÉES LUES DANS `ClientInteraction` :
+   - `interaction_type`, `subject`, `description`
+   - `interaction_date`
+   - `client` (FK) et `user_name`
+
+   STRUCTURE CRM SPÉCIALE (envoyée vers le JavaScript via `json_script`) :
+   Pour chaque client, la vue construit un dictionnaire sérialisable JSON :
+   - `id` : identifiant du client
+   - `nom` : nom complet (`Client.name`)
+   - `email`, `telephone`
+   - `type` : texte lisible du type de client
+   - `statut` : "Actif" ou "Inactif" (dérivé de `Client.status`)
+   - `ventes` : `total_spent` converti en float
+   - `commandes` : `total_orders`
+   - `satisfaction` : score converti sur 0–5 (à partir de 0–100)
+   - `derniereActiviteMois` : nombre de mois depuis la dernière activité
+   - `interactions` : liste de chaînes texte résumant les interactions
+   - `factures` : liste prévue pour les factures liées (maquette)
+   - `messages` : liste de messages pour la messagerie interne (maquette)
+
+   UTILISATION :
+   - Liste de clients (portefeuille) filtrable (nom, statut, satisfaction)
+   - KPIs latéraux (total, actifs, fidèles, taux de fidélisation, taux de conversion)
+   - Alertes CRM (clients inactifs, prospects à relancer, satisfaction faible, factures en retard)
+   - Fiches clients détaillées (modale) avec historique et factures
+   - Pseudo‑messagerie CRM (notes internes liées au client)
+
+2) Écrans Panier / Commandes
+
+   a) `/clients/panier/` – Panier (`pgi/cart.html`)
+      Vue : `clients.views.cart_view`
+
+      DONNÉES :
+      - `Client` courant (retrouvé par `email` de l’utilisateur connecté)
+      - `Cart` unique lié au client
+      - `CartItem` du panier avec :
+        - `product` (référence à `stocks.Product`)
+        - `quantity`, `unit_price`, `line_total` (propriété)
+      - Propriétés calculées du panier (`Cart`) :
+        - `subtotal`, `tps`, `tvq`, `total`, `total_items`
+
+   b) `/clients/commander/` – Checkout (`clients.views.checkout`)
+
+      DONNÉES UTILISÉES :
+      - Panier (`Cart` + `CartItem`) du client courant
+      - Création d’une `ClientOrder` :
+        - `order_number`, `order_date`, `total_amount`, `status`
+      - Création des `OrderLineItem` à partir des items du panier
+      - Création automatique d’une `Invoice` et de ses `InvoiceLineItem`
+      - Mise à jour des champs cumulés du client :
+        - `total_orders`, `total_spent`
+
+   c) `/clients/mes-commandes/` – Historique (`pgi/my_orders.html`)
+      Vue : `clients.views.my_orders`
+
+      DONNÉES :
+      - `ClientOrder` du client connecté (liste ordonnée par date)
+      - Accès aux `OrderLineItem` et, par les signaux, aux `Invoice`
+
+   d) `/clients/commande/<id>/evaluer/` – Évaluation (`pgi/rate_order.html`)
+      Vue : `clients.views.rate_order`
+
+      DONNÉES :
+      - `ClientOrder` ciblée par `order_id`
+      - Création d’un `OrderRating` (note 1–5 + commentaire)
+
+3) Historique d’activités client (employés)
+
+   `/clients/client/<id>/historique/` – (`pgi/client_activity_history.html`)
+   Vue : `clients.views.client_activity_history`
+
+   DONNÉES :
+   - `Client` ciblé
+   - `ClientActivityLog` :
+     - `activity_type` (commande, email, appel, document, page vue…)
+     - `description`
+     - `page_url`
+     - `document` éventuel
+     - `user` (employé)
+     - dates `created_at`
+
+================================================================================
+5. TABLEAU DE BORD GLOBAL – DONNÉES CROISÉES
+================================================================================
+
+Écran `/` – Dashboard PGI (`pgi/index.html`)
+Vue : `pgi.views.dashboard`
+
+DONNÉES AGRÉGÉES (provenant de plusieurs modules) :
+- Valeur potentielle de CA et de marge (`potential_revenue`, `potential_profit`)
+- Valeur totale de stock (`total_stock_value`)
+- Nombre de produits (`total_products`)
+- Nombre de clients (`clients_count`)
+- Nombre de produits en stock bas (`low_stock_count`)
+- Séries pour les graphiques :
+  - `chart_month_labels`, `chart_month_revenues`, `chart_month_margins`
+  - `chart_cat_labels`, `chart_cat_values`
+
+UTILISATION :
+- KPI principaux en haut de page
+- Graphique lignes (inventaire et marge potentielle par mois)
+- Graphique doughnut (valeur de stock par catégorie)
+- Cartes par module (Stocks, Finances, Clients) avec chiffres clés
+- Timeline d’événements (chargement d’inventaire, alertes stocks bas)
+
+================================================================================
+6. COMMENT UTILISER CE DOCUMENT
+================================================================================
+
+Ce fichier peut servir à :
+
+- **Expliquer à un correcteur/enseignant** quelles données réelles sont
+  manipulées par le prototype PGI (et d’où elles viennent).
+- Préparer un **rapport fonctionnel** ou une **présentation** en parlant
+  de “ce que le système sait” sur les produits, les finances et les clients.
+- Servir de base pour de futures évolutions (ajouter de nouveaux champs,
+  nouveaux graphiques, etc.).
+
+Pour plus de détails techniques (diagrammes complets, règles d’affaires,
+signaux Django), voir aussi :
+
+- `EXPLICATION_COMPLETE_PROJET.txt`
+- `README.txt`
+
+================================================================================
+FIN DU DOCUMENT
+================================================================================
+
+
+
+
+
+
+

@@ -1,0 +1,298 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panier - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    .cart-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .cart-header {
+      margin-bottom: 30px;
+    }
+    .cart-header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .cart-header a {
+      color: #1d4ed8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .cart-header a:hover {
+      text-decoration: underline;
+    }
+    .cart-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+    }
+    .cart-items {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .cart-item {
+      display: flex;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item-image {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #6366f1;
+      flex-shrink: 0;
+    }
+    .cart-item-info {
+      flex: 1;
+    }
+    .cart-item-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #1f2937;
+    }
+    .cart-item-sku {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+    .cart-item-price {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+    .cart-item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cart-item-quantity input {
+      width: 60px;
+      padding: 5px;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+    .cart-item-actions form {
+      display: inline;
+    }
+    .btn-remove {
+      padding: 5px 10px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.3s;
+    }
+    .btn-remove:hover {
+      background: #dc2626;
+    }
+    .cart-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+    .cart-summary h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .summary-row.total {
+      border-bottom: 2px solid #1f2937;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-top: 10px;
+      color: #1d4ed8;
+    }
+    .summary-label {
+      color: #6b7280;
+    }
+    .summary-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .btn-checkout {
+      width: 100%;
+      padding: 15px;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-checkout:hover {
+      background: #1e40af;
+    }
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .empty-cart i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #d1d5db;
+    }
+    .empty-cart h2 {
+      margin-bottom: 10px;
+      color: #1f2937;
+    }
+    .empty-cart p {
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+    .btn-continue {
+      padding: 12px 24px;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+    .btn-continue:hover {
+      background: #1e40af;
+    }
+    @media (max-width: 768px) {
+      .cart-content {
+        grid-template-columns: 1fr;
+      }
+      .cart-summary {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cart-container">
+    <div class="cart-header">
+      <a href="{% url 'stocks:catalogue' %}"><i class="fa-solid fa-arrow-left"></i> Continuer les achats</a>
+      <h1><i class="fa-solid fa-cart-shopping"></i> Mon panier</h1>
+    </div>
+
+    {% if cart_items %}
+    <div class="cart-content">
+      <div class="cart-items">
+        {% for item in cart_items %}
+        <div class="cart-item">
+          <div class="cart-item-image">
+            <i class="fa-solid fa-box"></i>
+          </div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">{{ item.product.name }}</div>
+            <div class="cart-item-sku">SKU: {{ item.product.sku }}</div>
+            <div class="cart-item-price">{{ item.unit_price|floatformat:2 }} $ / unité</div>
+          </div>
+          <div class="cart-item-actions">
+            <div class="cart-item-quantity">
+              <form method="post" action="{% url 'clients:update_cart_item' item.id %}" style="display: inline;">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.quantity_in_stock }}" 
+                       onchange="this.form.submit()" style="width: 60px; padding: 5px; text-align: center; border: 1px solid #e5e7eb; border-radius: 6px;">
+              </form>
+              <span style="color: #6b7280; font-size: 0.9rem;">x {{ item.quantity }}</span>
+            </div>
+            <div style="font-weight: 600; color: #1f2937; margin-top: 5px;">
+              Total: {{ item.total_price|floatformat:2 }} $
+            </div>
+            <form method="post" action="{% url 'clients:remove_from_cart' item.id %}" style="margin-top: 10px;">
+              {% csrf_token %}
+              <button type="submit" class="btn-remove">
+                <i class="fa-solid fa-trash"></i> Retirer
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="cart-summary">
+        <h2>Résumé de la commande</h2>
+        <div class="summary-row">
+          <span class="summary-label">Sous-total:</span>
+          <span class="summary-value">{{ cart.subtotal|floatformat:2 }} $</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">TPS (5%):</span>
+          <span class="summary-value">{{ cart.tps|floatformat:2 }} $</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">TVQ (9.975%):</span>
+          <span class="summary-value">{{ cart.tvq|floatformat:2 }} $</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span>{{ cart.total|floatformat:2 }} $</span>
+        </div>
+        <a href="{% url 'clients:checkout' %}" class="btn-checkout">
+          <i class="fa-solid fa-credit-card"></i> Passer la commande
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <h2>Votre panier est vide</h2>
+      <p>Ajoutez des produits depuis le catalogue pour commencer vos achats.</p>
+      <a href="{% url 'stocks:catalogue' %}" class="btn-continue">
+        <i class="fa-solid fa-store"></i> Voir le catalogue
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
+

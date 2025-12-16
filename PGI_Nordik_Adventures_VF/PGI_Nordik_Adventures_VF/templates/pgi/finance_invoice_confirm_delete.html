@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supprimer la facture - Nordik Adventures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-mountain-sun"></i>
+        <h2>Nordik<span>Adventures</span></h2>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'pgi:dashboard' %}"><i class="fa-solid fa-gauge"></i><span>Tableau de bord</span></a>
+      <a href="{% url 'stocks:stock_list' %}"><i class="fa-solid fa-warehouse"></i><span>Gestion des stocks</span></a>
+      <a href="{% url 'finances:finances' %}" class="active"><i class="fa-solid fa-chart-line"></i><span>Finances &amp; facturation</span></a>
+      <a href="{% url 'clients:clients' %}"><i class="fa-solid fa-users"></i><span>Relations clients</span></a>
+      <a href="{% url 'pgi:settings' %}"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='{% url "pgi:login" %}'">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard-header">
+      <div class="user-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h2>Supprimer la facture</h2>
+          <p>Cette action est définitive. La facture ne sera plus visible dans le module Finances.</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <a href="{% url 'finances:finances_factures' %}" class="add-btn">
+          <i class="fa-solid fa-arrow-left"></i> Annuler et retourner aux factures
+        </a>
+      </div>
+    </div>
+
+    <section class="modern-table form-card">
+      <h2><i class="fa-solid fa-file-circle-xmark"></i> Confirmer la suppression</h2>
+      <p>
+        Voulez-vous vraiment supprimer la facture
+        <strong>{{ invoice.invoice_number|default:"(sans numéro)" }}</strong>
+        pour le client <strong>{{ invoice.client_name }}</strong> ?
+      </p>
+      <p>Montant TTC : <strong>{{ invoice.total_amount }} $</strong></p>
+
+      <form method="post" class="form-actions">
+        {% csrf_token %}
+        <button type="submit" class="add-btn danger">
+          <i class="fa-solid fa-trash"></i> Oui, supprimer la facture
+        </button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
